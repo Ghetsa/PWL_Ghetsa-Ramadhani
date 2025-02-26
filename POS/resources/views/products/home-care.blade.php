@@ -12,6 +12,9 @@
   <p>Menyediakan produk yang berkaitan dengan kebutuhan bayi dan anak-anak, 
   seperti susu formula, popok, pakaian bayi,
     dan mainan edukatif.</p>
+
+        <button onclick="window.location.href='../'">Kembali</button>
+
 </body>
 
 </html>

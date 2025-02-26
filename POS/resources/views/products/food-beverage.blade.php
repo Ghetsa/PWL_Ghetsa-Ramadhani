@@ -12,6 +12,9 @@
   <p>Menyediakan produk makanan dan minuman, seperti makanan ringan, 
   minuman kemasan, bahan makanan segar, serta makanan
     instan yang siap dikonsumsi.</p>
+
+        <button onclick="window.location.href='../'">Kembali</button>
+
 </body>
 
 </html>

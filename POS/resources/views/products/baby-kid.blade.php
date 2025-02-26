@@ -13,6 +13,9 @@
     seperti susu formula, popok, pakaian bayi,
     dan mainan edukatif.</p>
 
+
+  <button onclick="window.location.href='../'">Kembali</button>
+
 </body>
 
 </html>

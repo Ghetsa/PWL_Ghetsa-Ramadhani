@@ -1,11 +1,14 @@
-<?php 
+<?php
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use App\Models\User;
 
-class DatabaseSeeder extends Seeder {
-    public function run() {
+class DatabaseSeeder extends Seeder
+{
+    public function run()
+    {
         // Tambah kategori
         DB::table('categories')->insert([
             ['name' => 'Makanan & Minuman'],
@@ -15,10 +18,27 @@ class DatabaseSeeder extends Seeder {
         ]);
 
         // Tambah user
-        DB::table('users')->insert([
-            'name' => 'Admin',
-            'email' => 'admin@pos.com',
-            'password' => Hash::make('password'),
+        User::insert([
+            [
+                'name' => 'Admin',
+                'email' => 'admin@pos.com',
+                'password' => Hash::make('password'),
+            ],
+            [
+                'name' => 'Ghetsa Ramadhani Riska Arryanti',
+                'email' => 'ghetsa@gmail.com',
+                'password' => Hash::make('123'),
+            ],
+            [
+                'name' => 'Budi Santoso',
+                'email' => 'budi@gmail.com',
+                'password' => Hash::make('budi123'),
+            ],
+            [
+                'name' => 'Ayu Lestari',
+                'email' => 'ayu@gmail.com',
+                'password' => Hash::make('ayu123'),
+            ],
         ]);
 
         // Tambah barang

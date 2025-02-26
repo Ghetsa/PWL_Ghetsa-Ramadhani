@@ -19,6 +19,9 @@ use App\Http\Controllers\SalesController;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/products', function () {
+    return view('products.index');
+});
 
 
 // Route Home
@@ -37,9 +40,13 @@ Route::get('/user/{id}/name/{name}', [UserController::class, 'show'])->name('use
 
 // Route Penjualan (POS)
 Route::get('/sales', [SalesController::class, 'index'])->name('sales');
+Route::get('/user/profile/{id}', [UserController::class, 'profile'])->name('user.profile');
 
+Route::get('/transaksi', function () {
+    return view('transactions.index');
+});
 
-
-//BUAT DATABASE BESERTA DATANYA
-//EDIT .ENV 
-//PERPAIKI TAMPILAN HOME DAN POS
+Route::get('/transaksi', function () {
+    $transaksi = Transaksi::all();
+    return view('transactions.index', compact('transactions'));
+});

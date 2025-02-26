@@ -12,6 +12,9 @@
   <p>Menyediakan produk kecantikan dan kesehatan, termasuk skincare, kosmetik, 
   vitamin, suplemen, serta alat kesehatan
     seperti masker dan termometer.</p>
+
+        <button onclick="window.location.href='../'">Kembali</button>
+
 </body>
 
 </html>

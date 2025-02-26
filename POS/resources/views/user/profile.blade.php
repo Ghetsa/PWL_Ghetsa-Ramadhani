@@ -1,12 +1,20 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
+
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Pengguna</title>
 </head>
+
 <body>
-    <h1>Profil Pengguna</h1>
-    <p>ID: {{ $id }}</p>
-    <p>Nama: {{ $name }}</p>
-    <p>Alamat: {{ $alamat }}</p>
+    <h2>Profil Pengguna</h2>
+    <p>Berisikan halaman informasi pengguna</p>
+    <hr>
+    <p>Nama: {{ $user->name }}</p>
+    <p>Email: {{ $user->email }}</p>
+    <button onclick="window.location.href='../..'">Kembali</button>
+
 </body>
+
 </html>

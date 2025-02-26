@@ -1,12 +1,21 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <title>Home - POS</title>
 </head>
+
 <body>
     <h1>Selamat Datang di Website POS</h1>
 
-    <h2>Menu Navigasi</h2>
+    <h3>Menu Utama</h3>
+    <ul>
+        <li><a href="/products">Halaman Produk</a></li>
+        <li><a href="/user/profile/2">Halaman Pengguna</a></li>
+        <li><a href="/sales">Halaman Transaksi</a></li>
+    </ul>
+
+    {{-- <h2>Menu Navigasi</h2>
     <ul>
         <li><a href="/category/food-beverage">Kategori Makanan & Minuman</a></li>
         <li><a href="/category/beauty-health">Kategori Kecantikan & Kesehatan</a></li>
@@ -18,6 +27,7 @@
     <p>Lihat profil pengguna: <a href="/user/1/name/Joko">Klik di sini</a></p>
 
     <h2>Halaman Transaksi</h2>
-    <p><a href="/sales">Buka Halaman Transaksi POS</a></p>
+    <p><a href="/sales">Buka Halaman Transaksi POS</a></p> --}}
 </body>
+
 </html>
