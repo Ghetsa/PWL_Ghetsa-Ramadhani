@@ -22,7 +22,7 @@ Route::get('/', function () {
 
 
 // Route Home
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index']);
 
 // Route Product menggunakan Prefix
 Route::prefix('category')->group(function () {
