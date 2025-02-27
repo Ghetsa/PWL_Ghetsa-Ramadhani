@@ -13,7 +13,7 @@
   vitamin, suplemen, serta alat kesehatan
     seperti masker dan termometer.</p>
 
-        <button onclick="window.location.href='../'">Kembali</button>
+  <button onclick="window.location.href='../products'">Kembali</button>
 
 </body>
 

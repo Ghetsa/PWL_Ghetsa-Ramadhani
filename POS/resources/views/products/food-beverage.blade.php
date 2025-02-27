@@ -13,6 +13,6 @@
   minuman kemasan, bahan makanan segar, serta makanan
     instan yang siap dikonsumsi.</p>
 
-        <button onclick="window.location.href='../'">Kembali</button>
+  <button onclick="window.location.href='../products'">Kembali</button>
 </body>
 </html>

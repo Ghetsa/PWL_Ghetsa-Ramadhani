@@ -21,7 +21,7 @@ Route::get('/', function () {
 });
 Route::get('/products', function () {
     return view('products.index');
-});
+})->name('product');
 
 
 // Route Home
