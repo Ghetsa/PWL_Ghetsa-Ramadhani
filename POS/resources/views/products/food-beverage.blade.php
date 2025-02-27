@@ -14,7 +14,5 @@
     instan yang siap dikonsumsi.</p>
 
         <button onclick="window.location.href='../'">Kembali</button>
-
 </body>
-
 </html>

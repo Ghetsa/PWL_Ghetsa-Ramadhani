@@ -11,8 +11,10 @@
     <h2>Profil Pengguna</h2>
     <p>Berisikan halaman informasi pengguna</p>
     <hr>
-    <p>Nama: {{ $user->name }}</p>
-    <p>Email: {{ $user->email }}</p>
+    <p>Nama: {{ $name }}</p>
+    <p>ID: {{ $id }}</p>
+    {{-- <p>Nama: {{ $user->name }}</p>
+    <p>Email: {{ $user->email }}</p> --}}
     <button onclick="window.location.href='../..'">Kembali</button>
 
 </body>

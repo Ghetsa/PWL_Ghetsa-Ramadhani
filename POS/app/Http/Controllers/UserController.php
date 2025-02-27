@@ -7,18 +7,10 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    // public function show($id, $name)
-    // {
-    //     return view('user.profile', compact('id', 'name'));
-    // }
-
-
-    // public function profile()
-    // {
-    //     $user = Auth::user(); // Mendapatkan user yang sedang login
-
-    //     return view('user.profile', compact('user')); // Kirim ke view
-    // }
+    public function show($id, $name)
+    {
+        return view('user.profile', compact('id', 'name'));
+    }
     public function profile($id)
     {
         // Ambil data user berdasarkan ID
@@ -33,3 +25,12 @@ class UserController extends Controller
     }
 
 }
+
+
+
+    // public function profile()
+    // {
+    //     $user = Auth::user(); // Mendapatkan user yang sedang login
+
+    //     return view('user.profile', compact('user')); // Kirim ke view
+    // }

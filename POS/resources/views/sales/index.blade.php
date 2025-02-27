@@ -7,6 +7,5 @@
     <h1>Halaman Transaksi POS</h1>
     <p>Halaman ini berisikan transaksi penjualan</p>
     <button onclick="window.location.href='../'">Kembali</button>
-
 </body>
 </html>
