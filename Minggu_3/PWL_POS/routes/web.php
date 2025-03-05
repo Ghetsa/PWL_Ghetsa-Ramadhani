@@ -5,6 +5,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SalesController;
+use App\Http\Controllers\LevelController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,9 +18,9 @@ use App\Http\Controllers\SalesController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 Route::get('/products', function () {
     return view('products.index');
 })->name('product');
@@ -49,3 +51,15 @@ Route::get('/transaksi', function () {
     $transaksi = Transaksi::all();
     return view('transactions.index', compact('transactions'));
 });
+
+
+
+// ---------------------------------------------------------------- 
+// Jobsheet 3
+// ----------------------------------------------------------------
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/level', [LevelController::class, 'index']);
