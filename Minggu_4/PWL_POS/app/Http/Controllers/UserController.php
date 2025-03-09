@@ -11,8 +11,10 @@ class UserController extends Controller
     public function index()
     {
 
-        // ---------------------------------------------
+        // =============================================
         // JOBSHEET 4
+        // =============================================
+        // PRAKTIKUM 1
         // ---------------------------------------------
         // Praktikum 1 - Langkah 2
         // $data = [
@@ -28,16 +30,67 @@ class UserController extends Controller
 
         // ---------------------------------------------
         // Praktikum 1 - Langkah 5
-        $data = [
-            'level_id' => 2,
-            'username' => 'manager_tiga',
-            'nama' => 'Manager 3',
-            'password' => Hash::make('12345')
-        ];
-        UserModel::create($data);
+        // $data = [
+        //     'level_id' => 2,
+        //     'username' => 'manager_tiga',
+        //     'nama' => 'Manager 3',
+        //     'password' => Hash::make('12345')
+        // ];
+        // UserModel::create($data);
 
-        $user = UserModel::all();
+        // $user = UserModel::all();
+        // return view('user', ['data' => $user]);
+
+        // ---------------------------------------------
+        // PRAKTIKUM 2
+        // ---------------------------------------------
+        // Praktikum 2.1 - Langkah 1
+        // $user = UserModel::find(1);
+        // return view('user', ['data' => $user]);
+
+        // ---------------------------------------------
+        // Praktikum 2.1 - Langkah 4
+        // $user = UserModel::where('level_id', 1)->first();
+        // return view('user', ['data' => $user]);
+        
+        // ---------------------------------------------
+        // Praktikum 2.1 - Langkah 6
+        // $user = UserModel::firstWhere('level_id', 1);
+        // return view('user', ['data' => $user]);
+
+        // ---------------------------------------------
+        // Praktikum 2.1 - Langkah 8
+        // $user = UserModel::findOr(1, ['username', 'nama'], function () {
+        //     abort(404);
+        // });
+
+        // return view('user', ['data' => $user]);
+
+        // ---------------------------------------------
+        // Praktikum 2.1 - Langkah 10
+        $user = UserModel::findOr(20, ['username', 'nama'], function () {
+            abort(404);
+        });
+
         return view('user', ['data' => $user]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         // ---------------------------------------------
