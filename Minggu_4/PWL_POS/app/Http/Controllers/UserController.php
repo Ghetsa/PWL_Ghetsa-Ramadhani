@@ -52,7 +52,7 @@ class UserController extends Controller
         // Praktikum 2.1 - Langkah 4
         // $user = UserModel::where('level_id', 1)->first();
         // return view('user', ['data' => $user]);
-        
+
         // ---------------------------------------------
         // Praktikum 2.1 - Langkah 6
         // $user = UserModel::firstWhere('level_id', 1);
@@ -68,10 +68,18 @@ class UserController extends Controller
 
         // ---------------------------------------------
         // Praktikum 2.1 - Langkah 10
-        $user = UserModel::findOr(20, ['username', 'nama'], function () {
-            abort(404);
-        });
+        // $user = UserModel::findOr(20, ['username', 'nama'], function () {
+        //     abort(404);
+        // });
 
+        // ---------------------------------------------
+        // Praktikum 2.2 - Langkah 1
+        // $user = UserModel::findOrFail(1);
+        // return view('user', ['data' => $user]);
+
+        // ---------------------------------------------
+        // Praktikum 2.2 - Langkah 3
+        $user = UserModel::where('username', 'manager9')->firstOrFail();
         return view('user', ['data' => $user]);
 
 
