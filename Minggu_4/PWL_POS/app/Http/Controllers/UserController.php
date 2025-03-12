@@ -202,8 +202,34 @@ class UserController extends Controller
 
         // ---------------------------------------------
         // Praktikum 2.6 - Langkah 2
-        $user = UserModel::all();
+        // $user = UserModel::all();
+        // return view('user', ['data' => $user]);
+
+        // ---------------------------------------------
+        // Praktikum 2.7 - Langkah 2
+        // $user = UserModel::with('level')->get();
+        // dd($user);
+
+        // ---------------------------------------------
+        // Praktikum 2.7 - Langkah 4
+        $user = UserModel::with('level')->get();
         return view('user', ['data' => $user]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         // ---------------------------------------------
