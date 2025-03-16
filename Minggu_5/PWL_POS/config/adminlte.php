@@ -316,54 +316,63 @@ return [
             'text' => 'search',
         ],
         [
-            'text' => 'blog',
+            'text' => 'Blog',
             'url' => 'admin/blog',
             'can' => 'manage-blog',
         ],
         [
-            'text' => 'pages',
+            'text' => 'Pages',
             'url' => 'admin/pages',
             'icon' => 'far fa-fw fa-file',
             'label' => 4,
             'label_color' => 'success',
         ],
-        ['header' => 'account_settings'],
         [
-            'text' => 'profile',
+            'text' => 'Manage Kategori',
+            'url' => 'kategori',
+            'icon' => 'fas fa-list',
+        ],
+
+        ['header' => 'Account Settings'],
+        [
+            'text' => 'Profile',
             'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-user',
         ],
         [
-            'text' => 'change_password',
+            'text' => 'Change Password',
             'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-lock',
         ],
+
+
+        // Multilevel Menu
         [
-            'text' => 'multilevel',
+            'text' => 'Multilevel',
             'icon' => 'fas fa-fw fa-share',
             'submenu' => [
                 [
-                    'text' => 'level_one',
+                    'text' => 'Level One',
                     'url' => '#',
                 ],
                 [
-                    'text' => 'level_one',
+                    'text' => 'Level One',
                     'url' => '#',
                     'submenu' => [
                         [
-                            'text' => 'level_two',
+                            'text' => 'Level Two',
                             'url' => '#',
                         ],
                         [
-                            'text' => 'level_two',
+                            'text' => 'Level Two',
                             'url' => '#',
                             'submenu' => [
                                 [
-                                    'text' => 'level_three',
+                                    'text' => 'Level Three',
                                     'url' => '#',
                                 ],
                                 [
-                                    'text' => 'level_three',
+                                    'text' => 'Level Three',
                                     'url' => '#',
                                 ],
                             ],
@@ -371,28 +380,30 @@ return [
                     ],
                 ],
                 [
-                    'text' => 'level_one',
+                    'text' => 'Level One',
                     'url' => '#',
                 ],
             ],
         ],
-        ['header' => 'labels'],
+
+        ['header' => 'Labels'],
         [
-            'text' => 'important',
+            'text' => 'Important',
             'icon_color' => 'red',
             'url' => '#',
         ],
         [
-            'text' => 'warning',
+            'text' => 'Warning',
             'icon_color' => 'yellow',
             'url' => '#',
         ],
         [
-            'text' => 'information',
+            'text' => 'Information',
             'icon_color' => 'cyan',
             'url' => '#',
         ],
     ],
+
 
     /*
     |--------------------------------------------------------------------------

@@ -94,6 +94,17 @@ Route::get('/kategori', [KategoriController::class, 'index']);
 
 
 
-//praktikum 3
-Route::get('/kategori/create', [KategoriController::class, 'create']);
-Route::post('/kategori', [KategoriController::class, 'store']);
+//praktikum 3 dan tugas
+Route::get('/kategori/create', [KategoriController::class, 'create'])->name('kategori.create');
+Route::post('/kategori/store', [KategoriController::class, 'store'])->name('kategori.store');
+
+
+//Tugas Nomer 3 - Menambahkan Edit
+Route::get('/kategori/{id}/edit', [KategoriController::class, 'edit'])->name('kategori.edit');
+Route::post('/kategori/{id}/update', [KategoriController::class, 'update'])->name('kategori.update');
+Route::resource('kategori', KategoriController::class);
+
+//Tugas Nomer 4 - Menambahkan Delete
+Route::get('/kategori/delete/{id}', [KategoriController::class, 'delete'])->name('kategori.delete');
+
+
