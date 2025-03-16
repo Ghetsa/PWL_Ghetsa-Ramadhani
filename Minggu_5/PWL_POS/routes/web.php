@@ -85,3 +85,15 @@ Route::put('/user/ubah_simpan/{id}', [UserController::class, 'ubah_simpan']);
 // Praktikum 2.6 - Langkah 18
 Route::get('/user/hapus/{id}', [UserController::class, 'hapus']);
 
+
+// ---------------------------------------------------------------- 
+// Jobsheet 5
+// ----------------------------------------------------------------
+// praktikum 2
+Route::get('/kategori', [KategoriController::class, 'index']);
+
+
+
+//praktikum 3
+Route::get('/kategori/create', [KategoriController::class, 'create']);
+Route::post('/kategori', [KategoriController::class, 'store']);
