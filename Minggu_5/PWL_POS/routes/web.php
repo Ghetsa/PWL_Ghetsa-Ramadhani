@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
@@ -8,7 +7,6 @@ use App\Http\Controllers\SalesController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\WelcomeController;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -19,7 +17,6 @@ use App\Http\Controllers\WelcomeController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-
 // Route::get('/', function () {
 //     return view('welcome');
 // });
