@@ -7,6 +7,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\SalesController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\WelcomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,7 +29,7 @@ Route::get('/products', function () {
 
 
 // Route Home
-Route::get('/', [HomeController::class, 'index']);
+// Route::get('/', [HomeController::class, 'index']);
 
 // Route Product menggunakan Prefix
 Route::prefix('category')->group(function () {
@@ -59,9 +60,9 @@ Route::get('/transaksi', function () {
 // Jobsheet 3
 // ----------------------------------------------------------------
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Route::get('/level', [LevelController::class, 'index']);
 Route::get('/kategori', [KategoriController::class, 'index']);
@@ -85,3 +86,8 @@ Route::put('/user/ubah_simpan/{id}', [UserController::class, 'ubah_simpan']);
 // Praktikum 2.6 - Langkah 18
 Route::get('/user/hapus/{id}', [UserController::class, 'hapus']);
 
+// ---------------------------------------------------------------- 
+// Jobsheet 5
+// ----------------------------------------------------------------
+// Praktikum 2 - Langkah 5
+Route::get('/', [WelcomeController::class, 'index']);
