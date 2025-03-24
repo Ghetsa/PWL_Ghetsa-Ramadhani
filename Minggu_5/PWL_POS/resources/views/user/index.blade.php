@@ -64,12 +64,18 @@
       }
       },
       columns: [
+      // {
+      //   // nomor urut dari laravel datatable addIndexColumn()
+      //   data: "DT_RowIndex",
+      //   className: "text-center",
+      //   orderable: false,
+      //   searchable: false
+      // },
       {
-        // nomor urut dari laravel datatable addIndexColumn()
-        data: "DT_RowIndex",
+        data: "user_id",
         className: "text-center",
-        orderable: false,
-        searchable: false
+        orderable: true,
+        searchable: true
       },
       {
         data: "username",
