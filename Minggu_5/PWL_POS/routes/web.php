@@ -20,71 +20,83 @@ use App\Http\Controllers\WelcomeController;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
-Route::get('/products', function () {
-    return view('products.index');
-})->name('product');
+// Route::get('/products', function () {
+//     return view('products.index');
+// })->name('product');
 
 
-// Route Home
-// Route::get('/', [HomeController::class, 'index']);
+// // Route Home
+// // Route::get('/', [HomeController::class, 'index']);
 
-// Route Product menggunakan Prefix
-Route::prefix('category')->group(function () {
-    Route::get('/food-beverage', [ProductController::class, 'foodBeverage'])->name('category.food-beverage');
-    Route::get('/beauty-health', [ProductController::class, 'beautyHealth'])->name('category.beauty-health');
-    Route::get('/home-care', [ProductController::class, 'homeCare'])->name('category.home-care');
-    Route::get('/baby-kid', [ProductController::class, 'babyKid'])->name('category.baby-kid');
-});
-
-// Route User menggunakan Parameter
-Route::get('/user/{id}/name/{name}', [UserController::class, 'show'])->name('user.show');
-
-// Route Penjualan (POS)
-Route::get('/sales', [SalesController::class, 'index'])->name('sales');
-
-Route::get('/transaksi', function () {
-    return view('transactions.index');
-});
-
-Route::get('/transaksi', function () {
-    $transaksi = Transaksi::all();
-    return view('transactions.index', compact('transactions'));
-});
-
-
-
-// ---------------------------------------------------------------- 
-// Jobsheet 3
-// ----------------------------------------------------------------
-
-// Route::get('/', function () {
-//     return view('welcome');
+// // Route Product menggunakan Prefix
+// Route::prefix('category')->group(function () {
+//     Route::get('/food-beverage', [ProductController::class, 'foodBeverage'])->name('category.food-beverage');
+//     Route::get('/beauty-health', [ProductController::class, 'beautyHealth'])->name('category.beauty-health');
+//     Route::get('/home-care', [ProductController::class, 'homeCare'])->name('category.home-care');
+//     Route::get('/baby-kid', [ProductController::class, 'babyKid'])->name('category.baby-kid');
 // });
 
-Route::get('/level', [LevelController::class, 'index']);
-Route::get('/kategori', [KategoriController::class, 'index']);
-Route::get('/user', [UserController::class, 'index']);
+// // Route User menggunakan Parameter
+// Route::get('/user/{id}/name/{name}', [UserController::class, 'show'])->name('user.show');
 
-// ---------------------------------------------------------------- 
-// Jobsheet 4
-// ----------------------------------------------------------------
-// Praktikum 2.6 - Langkah 5
-Route::get('/user/tambah', [UserController::class, 'tambah']);
+// // Route Penjualan (POS)
+// Route::get('/sales', [SalesController::class, 'index'])->name('sales');
 
-// Praktikum 2.6 - Langkah 8
-Route::post('/user/tambah_simpan', [UserController::class, 'tambah_simpan']);
+// Route::get('/transaksi', function () {
+//     return view('transactions.index');
+// });
 
-// Praktikum 2.6 - Langkah 12
-Route::get('/user/ubah/{id}', [UserController::class, 'ubah']);
+// Route::get('/transaksi', function () {
+//     $transaksi = Transaksi::all();
+//     return view('transactions.index', compact('transactions'));
+// });
 
-// Praktikum 2.6 - Langkah 15
-Route::put('/user/ubah_simpan/{id}', [UserController::class, 'ubah_simpan']);
 
-// Praktikum 2.6 - Langkah 18
-Route::get('/user/hapus/{id}', [UserController::class, 'hapus']);
+
+// // ---------------------------------------------------------------- 
+// // Jobsheet 3
+// // ----------------------------------------------------------------
+
+// // Route::get('/', function () {
+// //     return view('welcome');
+// // });
+
+// Route::get('/level', [LevelController::class, 'index']);
+// Route::get('/kategori', [KategoriController::class, 'index']);
+// Route::get('/user', [UserController::class, 'index']);
+
+// // ---------------------------------------------------------------- 
+// // Jobsheet 4
+// // ----------------------------------------------------------------
+// // Praktikum 2.6 - Langkah 5
+// Route::get('/user/tambah', [UserController::class, 'tambah']);
+
+// // Praktikum 2.6 - Langkah 8
+// Route::post('/user/tambah_simpan', [UserController::class, 'tambah_simpan']);
+
+// // Praktikum 2.6 - Langkah 12
+// Route::get('/user/ubah/{id}', [UserController::class, 'ubah']);
+
+// // Praktikum 2.6 - Langkah 15
+// Route::put('/user/ubah_simpan/{id}', [UserController::class, 'ubah_simpan']);
+
+// // Praktikum 2.6 - Langkah 18
+// Route::get('/user/hapus/{id}', [UserController::class, 'hapus']);
 
 // ---------------------------------------------------------------- 
 // Jobsheet 5
 // ----------------------------------------------------------------
 // Praktikum 2 - Langkah 5
 Route::get('/', [WelcomeController::class, 'index']);
+
+// Praktikum 3 - Langkah 3
+Route::group(['prefix' => 'user'], function () {
+    Route::get('/', [UserController::class, 'index']); // menampilkan halaman awal user
+    Route::post('/list', [UserController::class, 'list']); // menampilkan data user dalam bentuk json untuk datatables
+    Route::get('/create', [UserController::class, 'create']); // menampilkan halaman form tambah user
+    Route::post('/', [UserController::class, 'store']); // menyimpan data user baru
+    Route::get('/{id}', [UserController::class, 'show']); // menampilkan detail user
+    Route::get('/{id}/edit', [UserController::class, 'edit']); // menampilkan halaman form edit user
+    Route::put('/{id}', [UserController::class, 'update']); // menyimpan perubahan data user
+    Route::delete('/{id}', [UserController::class, 'destroy']); // menghapus data user
+});
