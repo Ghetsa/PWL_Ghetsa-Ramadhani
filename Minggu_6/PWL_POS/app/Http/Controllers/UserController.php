@@ -291,48 +291,79 @@ class UserController extends Controller
     }
 
     // Praktikum 2 - Langkah 6
-    public function update_ajax(Request $request, $id){
+    public function update_ajax(Request $request, $id)
+    {
         // cek apakah request dari ajax
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
-                'level_id'  => 'required|integer',
-                'username'  => 'required|max:20|unique:m_user,username,'.$id.',user_id',
-                'nama'      => 'required|max:100',
-                'password'  => 'nullable|min:6|max:20'
+                'level_id' => 'required|integer',
+                'username' => 'required|max:20|unique:m_user,username,' . $id . ',user_id',
+                'nama' => 'required|max:100',
+                'password' => 'nullable|min:6|max:20'
             ];
-    
+
             // use Illuminate\Support\Facades\Validator;
             $validator = Validator::make($request->all(), $rules);
-    
+
             if ($validator->fails()) {
                 return response()->json([
-                    'status'  => false, // respon json, true: berhasil, false: gagal
+                    'status' => false, // respon json, true: berhasil, false: gagal
                     'message' => 'Validasi gagal.',
                     'msgfield' => $validator->errors() // menunjukkan field mana yang error
                 ]);
             }
-    
+
             $check = UserModel::find($id);
             if ($check) {
-                if(!$request->filled('password')){ // jika password tidak diisi, maka hapus dari request
+                if (!$request->filled('password')) { // jika password tidak diisi, maka hapus dari request
                     $request->request->remove('password');
                 }
-    
+
                 $check->update($request->all());
                 return response()->json([
-                    'status'  => true,
+                    'status' => true,
                     'message' => 'Data berhasil diupdate'
                 ]);
             } else {
                 return response()->json([
-                    'status'  => false,
+                    'status' => false,
                     'message' => 'Data tidak ditemukan'
                 ]);
             }
         }
         return redirect('/');
     }
-    
+
+    // Praktikum 3 - Langkah 3
+    public function confirm_ajax(string $id)
+    {
+        $user = UserModel::find($id);
+
+        return view('user.confirm_ajax', ['user' => $user]);
+    }
+
+
+    // Praktikum 3 - Langkah 5
+    public function delete_ajax(Request $request, $id)
+    {
+        // cek apakah request dari ajax
+        if ($request->ajax() || $request->wantsJson()) {
+            $user = UserModel::find($id);
+            if ($user) {
+                $user->delete();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil dihapus'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
+            }
+        }
+        return redirect('/');
+    }
 
 }
 
