@@ -1,4 +1,4 @@
-@empty($level)
+@empty($supplier)
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -12,33 +12,41 @@
                     <h5><i class="icon fas fa-ban"></i> Kesalahan!!!</h5>
                     Data yang Anda cari tidak ditemukan
                 </div>
-                <a href="{{ url('level') }}" class="btn btn-warning">Kembali</a>
+                <a href="{{ url('supplier') }}" class="btn btn-warning">Kembali</a>
             </div>
         </div>
     </div>
 @else
-    <form action="{{ url('/level/' . $level->level_id . '/update_ajax') }}" method="POST" id="form-edit">
+    <form action="{{ url('/supplier/' . $supplier->supplier_id . '/update_ajax') }}" method="POST" id="form-edit">
         @csrf
         @method('PUT')
         <div id="modal-master" class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Edit Data level</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Data Supplier</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Kode Level</label>
-                        <input value="{{ $level->level_kode }}" type="text" name="level_kode" id="level_kode" class="form-control" required>
-                        <small id="error-level_kode" class="error-text form-text text-danger"></small>
+                        <label>Kode Supplier</label>
+                        <input value="{{ $supplier->supplier_kode }}" type="text" name="supplier_kode" id="supplier_kode"
+                            class="form-control" required>
+                        <small id="error-supplier_kode" class="error-text form-text text-danger"></small>
                     </div>
 
                     <div class="form-group">
-                        <label>Nama Level</label>
-                        <input value="{{ $level->level_nama }}" type="text" name="level_nama" id="level_nama" class="form-control" required>
-                        <small id="error-level_nama" class="error-text form-text text-danger"></small>
+                        <label>Nama supplier</label>
+                        <input value="{{ $supplier->supplier_nama }}" type="text" name="supplier_nama" id="supplier_nama"
+                            class="form-control" required>
+                        <small id="error-supplier_nama" class="error-text form-text text-danger"></small>
+                    </div>
+                    <div class="form-group">
+                        <label>Alamat</label>
+                        <input value="{{ $supplier->supplier_alamat }}" type="text" name="supplier_alamat" id="supplier_alamat"
+                            class="form-control" required>
+                        <small id="error-supplier_alamat" class="error-text form-text text-danger"></small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -50,19 +58,19 @@
     </form>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $("#form-edit").validate({
                 rules: {
-                    level_kode: { required: true, minlength: 3, maxlength: 20 },
-                    level_nama: { required: true, minlength: 3, maxlength: 100 },
-                    password: { minlength: 6, maxlength: 20 }
+                    supplier_kode: { required: true, minlength: 3, maxlength: 20 },
+                    supplier_nama: { required: true, minlength: 3, maxlength: 100 },
+                    supplier_alamat: { required: true, minlength: 3, maxlength: 100 },
                 },
-                submitHandler: function(form) {
+                submitHandler: function (form) {
                     $.ajax({
                         url: form.action,
                         type: form.method,
                         data: $(form).serialize(),
-                        success: function(response) {
+                        success: function (response) {
                             if (response.status) {
                                 $('#myModal').modal('hide');
                                 Swal.fire({
@@ -70,10 +78,10 @@
                                     title: 'Berhasil',
                                     text: response.message
                                 });
-                                dataLevel.ajax.reload();
+                                dataSupplier.ajax.reload();
                             } else {
                                 $('.error-text').text('');
-                                $.each(response.msgField, function(prefix, val) {
+                                $.each(response.msgField, function (prefix, val) {
                                     $('#error-' + prefix).text(val[0]);
                                 });
                                 Swal.fire({
@@ -87,14 +95,14 @@
                     return false;
                 },
                 errorElement: 'span',
-                errorPlacement: function(error, element) {
+                errorPlacement: function (error, element) {
                     error.addClass('invalid-feedback');
                     element.closest('.form-group').append(error);
                 },
-                highlight: function(element, errorClass, validClass) {
+                highlight: function (element, errorClass, validClass) {
                     $(element).addClass('is-invalid');
                 },
-                unhighlight: function(element, errorClass, validClass) {
+                unhighlight: function (element, errorClass, validClass) {
                     $(element).removeClass('is-invalid');
                 }
             });

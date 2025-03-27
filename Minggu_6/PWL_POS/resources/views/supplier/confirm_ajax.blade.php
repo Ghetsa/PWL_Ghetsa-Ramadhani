@@ -1,4 +1,4 @@
-@empty($level)
+@empty($supplier)
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -12,19 +12,19 @@
                     <h5><i class="icon fas fa-ban"></i> Kesalahan!!!</h5>
                     Data yang anda cari tidak ditemukan
                 </div>
-                <a href="{{ url('/level') }}" class="btn btn-warning">Kembali</a>
+                <a href="{{ url('/supplier') }}" class="btn btn-warning">Kembali</a>
             </div>
         </div>
     </div>
 @else
-    <form action="{{ url('/level/' . $level->level_id . '/delete_ajax') }}" method="POST" id="form-delete">
+    <form action="{{ url('/supplier/' . $supplier->supplier_id . '/delete_ajax') }}" method="POST" id="form-delete">
         @csrf
         @method('DELETE')
 
         <div id="modal-master" class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Hapus Data Level</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Hapus Data supplier</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -35,8 +35,18 @@
                         Apakah Anda ingin menghapus data seperti di bawah ini?
                     </div>
                     <table class="table table-sm table-bordered table-striped">
-                        <tr><th class="text-right col-3">Kode Level :</th><td class="col-9">{{ $level->level_kode }}</td></tr>
-                        <tr><th class="text-right col-3">Nama Level :</th><td class="col-9">{{ $level->level_nama }}</td></tr>
+                        <tr>
+                            <th class="text-right col-3">Kode supplier :</th>
+                            <td class="col-9">{{ $supplier->supplier_kode }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right col-3">Nama supplier :</th>
+                            <td class="col-9">{{ $supplier->supplier_nama }}</td>
+                        </tr>
+                        <tr>
+                            <th class="text-right col-3">Alamat :</th>
+                            <td class="col-9">{{ $supplier->supplier_alamat }}</td>
+                        </tr>
                     </table>
                 </div>
                 <div class="modal-footer">
@@ -48,15 +58,15 @@
     </form>
 
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             $("#form-delete").validate({
                 rules: {},
-                submitHandler: function(form) {
+                submitHandler: function (form) {
                     $.ajax({
                         url: form.action,
                         type: form.method,
                         data: $(form).serialize(),
-                        success: function(response) {
+                        success: function (response) {
                             if (response.status) {
                                 $("#myModal").modal('hide');
                                 Swal.fire({
@@ -64,10 +74,10 @@
                                     title: 'Berhasil',
                                     text: response.message
                                 });
-                                dataLevel.ajax.reload();
+                                dataSupplier.ajax.reload();
                             } else {
                                 $('.error-text').text('');
-                                $.each(response.msgfield, function(prefix, val) {
+                                $.each(response.msgfield, function (prefix, val) {
                                     $("#error-" + prefix).text(val[0]);
                                 });
                                 Swal.fire({
@@ -81,14 +91,14 @@
                     return false;
                 },
                 errorElement: 'span',
-                errorPlacement: function(error, element) {
+                errorPlacement: function (error, element) {
                     error.addClass('invalid-feedback');
                     element.closest('.form-group').append(error);
                 },
-                highlight: function(element, errorClass, validClass) {
+                highlight: function (element, errorClass, validClass) {
                     $(element).addClass('is-invalid');
                 },
-                unhighlight: function(element, errorClass, validClass) {
+                unhighlight: function (element, errorClass, validClass) {
                     $(element).removeClass('is-invalid');
                 }
             });

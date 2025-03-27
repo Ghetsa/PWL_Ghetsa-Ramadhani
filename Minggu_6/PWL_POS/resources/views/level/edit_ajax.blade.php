@@ -55,7 +55,6 @@
                 rules: {
                     level_kode: { required: true, minlength: 3, maxlength: 20 },
                     level_nama: { required: true, minlength: 3, maxlength: 100 },
-                    password: { minlength: 6, maxlength: 20 }
                 },
                 submitHandler: function(form) {
                     $.ajax({

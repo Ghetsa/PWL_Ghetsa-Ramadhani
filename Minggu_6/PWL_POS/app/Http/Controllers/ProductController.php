@@ -175,33 +175,29 @@ class ProductController extends Controller
 
     public function destroy($id)
     {
-        $barang = BarangModel::find($id);
-    
-        if (!$barang) {
+        $check = BarangModel::find($id);
+
+        if (!$check) {
             return redirect('/barang')->with('error', 'Data barang tidak ditemukan');
         }
-    
+
         try {
-            // Hapus semua data yang terkait dengan barang ini
-            \DB::table('t_penjualan_detail')->where('barang_id', $id)->delete();
-    
-            // Setelah data terkait dihapus, hapus barang utama
-            $barang->delete();
-    
+            BarangModel::destroy($id);
             return redirect('/barang')->with('success', 'Data barang berhasil dihapus');
-        } catch (\Exception $e) {
-            return redirect('/barang')->with('error', 'Gagal menghapus barang: ' . $e->getMessage());
+        } catch (\Illuminate\Database\QueryException $e) {
+            return redirect('/barang')->with('error', 'Gagal menghapus data barang karena data masih terhubung dengan tabel lain');
         }
     }
 
-    
+
     // =============================================
-    // JOBSHEET 6 - TUGAS
+    // JOBSHEET 6
     // =============================================
     // Praktikum 1 - Langkah 7
     public function create_ajax()
     {
-        return view('level.create_ajax');
+        $kategori = KategoriModel::select('kategori_id', 'kategori_nama')->get();
+        return view('barang.create_ajax')->with('kategori', $kategori);
     }
     // Praktikum 1 - Langkah 9
     public function store_ajax(Request $request)
@@ -209,10 +205,13 @@ class ProductController extends Controller
         // cek apakah request berupa ajax
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
-                'level_kode' => 'required|string|min:3|unique:m_level,level_kode',
-                'level_nama' => 'required|string|max:100'
-            ];
+                'kategori_id' => 'required|integer',
+                'barang_kode' => 'required|string|min:3|unique:m_barang,barang_kode',
+                'barang_nama' => 'required|string|max:100',
+                'harga_beli' => 'required|integer|max:10000000',
+                'harga_jual' => 'required|integer|max:10000000'
 
+            ];
 
             $validator = Validator::make($request->all(), $rules);
 
@@ -224,125 +223,134 @@ class ProductController extends Controller
                 ]);
             }
 
-            LevelModel::create($request->all());
+            BarangModel::create($request->all());
 
             return response()->json([
                 'status' => true,
-                'message' => 'Data Level berhasil disimpan'
+                'message' => 'Data barang berhasil disimpan'
             ]);
         }
 
         redirect('/');
     }
 
+
     // Praktikum 2 - Langkah 2
-    // Ambil data level dalam bentuk json untuk datatables
-    public function list(Request $request)
+    // Ambil data barang dalam bentuk json untuk datatables
+    public function list()
     {
-        $levels = LevelModel::select('level_id', 'level_kode', 'level_nama');
+        $barang = BarangModel::with('kategori')->select('barang_id', 'kategori_id', 'barang_kode', 'barang_nama', 'harga_beli', 'harga_jual');
 
-        return DataTables::of($levels)
-            ->addIndexColumn()  // menambahkan kolom index / no urut (default nama kolom: DT_RowIndex)
-            ->addColumn('aksi', function ($level) {  // menambahkan kolom aksi
-    
-                /* $btn = '<a href="'.url('/level/' . $level->level_id).'" class="btn btn-info btn-sm">Detail</a> ';
-            $btn .= '<a href="'.url('/level/' . $level->level_id . '/edit').'" class="btn btn-warning btn-sm">Edit</a> ';
-            $btn .= '<form class="d-inline-block" method="POST" action="'. url('/level/'.$level->level_id).'">'
-            . csrf_field() . method_field('DELETE') .
-            '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\');">Hapus</button></form>';*/
-                $btn = '<button onclick="modalAction(\'' . url('/level/' . $level->level_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/level/' . $level->level_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/level/' . $level->level_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
-
+        return DataTables::of($barang)
+            ->addIndexColumn()
+            ->addColumn('kategori_nama', function ($barang) {
+                return $barang->kategori->kategori_nama ?? '-';
+            })
+            ->addColumn('aksi', function ($barang) {
+                // $btn  = '<a href="' . url('/barang/' . $barang->barang_id) . '" class="btn btn-info btn-sm">Detail</a> ';
+                // $btn .= '<a href="' . url('/barang/' . $barang->barang_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
+                // $btn .= '<form class="d-inline-block" method="POST" action="' . url('/barang/' . $barang->barang_id) . '">'
+                //       . csrf_field()
+                //       . method_field('DELETE')
+                //       . '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin menghapus?\')">Hapus</button>'
+                //       . '</form>';
+                // return $btn;
+                $btn = '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/barang/' . $barang->barang_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
                 return $btn;
             })
-            ->rawColumns(['aksi']) // memberitahu bahwa kolom aksi adalah html
+            ->rawColumns(['aksi'])
             ->make(true);
     }
 
     // Praktikum 2 - Langkah 4
-    // Menampilkan halaman form edit level ajax
+    // Menampilkan halaman form edit barang ajax
     public function edit_ajax(string $id)
     {
-        $level = LevelModel::find($id);
+        $barang = BarangModel::find($id);
+        $kategori = KategoriModel::select('kategori_id', 'kategori_nama')->get();
 
-        return view('level.edit_ajax', ['level' => $level]);
+        return view('barang.edit_ajax', [
+            'barang' => $barang,
+            'kategori' => $kategori,
+        ]);
     }
 
     // Praktikum 2 - Langkah 6
     public function update_ajax(Request $request, $id)
     {
-        // cek apakah request dari ajax
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
-                'level_kode' => 'required|max:20|unique:m_level,level_kode,' . $id . ',level_id',
-                'level_nama' => 'required|max:100'
+                'kategori_id' => 'required|integer|exists:m_kategori,kategori_id',
+                'barang_kode' => 'required|string|unique:m_barang,barang_kode,' . $id . ',barang_id',
+                'barang_nama' => 'required|string|max:100',
+                'harga_beli' => 'required|numeric|min:0',
+                'harga_jual' => 'required|numeric|min:0',
             ];
 
-            // use Illuminate\Support\Facades\Validator;
             $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails()) {
                 return response()->json([
-                    'status' => false, // respon json, true: berhasil, false: gagal
+                    'status' => false,
                     'message' => 'Validasi gagal.',
-                    'msgfield' => $validator->errors() // menunjukkan field mana yang error
+                    'msgField' => $validator->errors(),
                 ]);
             }
 
-            $check = LevelModel::find($id);
-            if ($check) {
-                if (!$request->filled('password')) { // jika password tidak diisi, maka hapus dari request
-                    $request->request->remove('password');
-                }
+            $barang = BarangModel::find($id);
+            if ($barang) {
+                $barang->update($request->all());
 
-                $check->update($request->all());
                 return response()->json([
                     'status' => true,
-                    'message' => 'Data berhasil diupdate'
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Data tidak ditemukan'
+                    'message' => 'Data barang berhasil diupdate.',
                 ]);
             }
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemukan.',
+            ]);
         }
+
         return redirect('/');
     }
+
 
     // Praktikum 3 - Langkah 3
     public function confirm_ajax(string $id)
     {
-        $level = LevelModel::find($id);
-
-        return view('level.confirm_ajax', ['level' => $level]);
+        $barang = BarangModel::find($id);
+        return view('barang.confirm_ajax', ['barang' => $barang]);
     }
-
-
     // Praktikum 3 - Langkah 5
+
+    // Hapus data barang
     public function delete_ajax(Request $request, $id)
     {
-        // cek apakah request dari ajax
         if ($request->ajax() || $request->wantsJson()) {
-            $level = LevelModel::find($id);
-            if ($level) {
-                $level->delete();
+            $barang = BarangModel::find($id);
+            if ($barang) {
+                $barang->delete();
+
                 return response()->json([
-                    'status' => true,
-                    'message' => 'Data berhasil dihapus'
-                ]);
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Data tidak ditemukan'
+                    'status'  => true,
+                    'message' => 'Data barang berhasil dihapus.',
                 ]);
             }
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Data tidak ditemukan.',
+            ]);
         }
+
         return redirect('/');
     }
 
-    
+
 }
 
 

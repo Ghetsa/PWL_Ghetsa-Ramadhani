@@ -1,28 +1,44 @@
-<form action="{{ url('supplier/ajax') }}" method="POST" id="form-tambah">
+<form action="{{ url('barang/ajax') }}" method="POST" id="form-tambah">
     @csrf
     <div id="modal-master" class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Tambah Data supplier</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Tambah Data barang</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Kode Supplier</label>
-                    <input value="" type="text" name="supplier_kode" id="supplier_kode" class="form-control" required>
-                    <small id="error-supplier_kode" class="error-text form-text text-danger"></small>
+                    <label>Kategori Barang</label>
+                    <select name="kategori_id" id="kategori_id" class="form-control" required>
+                        <option value="">- Pilih kategori -</option>
+                        @foreach ($kategori as $k)
+                            <option value="{{ $k->kategori_id }}">{{ $k->kategori_nama }}</option>
+                        @endforeach
+                    </select>
+                    <small id="error-kategori_id" class="error-text form-text text-danger"></small>
                 </div>
                 <div class="form-group">
-                    <label>Nama Supplier</label>
-                    <input value="" type="text" name="supplier_nama" id="supplier_nama" class="form-control" required>
-                    <small id="error-supplier_nama" class="error-text form-text text-danger"></small>
+                    <label>Kode Barang</label>
+                    <input value="" type="text" name="barang_kode" id="barang_kode" class="form-control" required>
+                    <small id="error-barang_kode" class="error-text form-text text-danger"></small>
                 </div>
                 <div class="form-group">
-                    <label>Alamat</label>
-                    <input value="" type="text" name="supplier_alamat" id="supplier_alamat" class="form-control" required>
-                    <small id="error-supplier_alamat" class="error-text form-text text-danger"></small>
+                    <label>Nama Barang</label>
+                    <input value="" type="text" name="barang_nama" id="barang_nama" class="form-control" required>
+                    <small id="error-barang_nama" class="error-text form-text text-danger"></small>
                 </div>
+                <div class="form-group">
+                    <label>Harga Beli</label>
+                    <input value="" type="number" name="harga_beli" id="harga_beli" class="form-control" required>
+                    <small id="error-harga_beli" class="error-text form-text text-danger"></small>
+                </div>
+                <div class="form-group">
+                    <label>Harga Jual</label>
+                    <input value="" type="number" name="harga_jual" id="harga_jual" class="form-control" required>
+                    <small id="error-harga_jual" class="error-text form-text text-danger"></small>
+                </div>
+                
             </div>
             <div class="modal-footer">
                 <button type="button" data-dismiss="modal" class="btn btn-warning">Batal</button>
@@ -32,24 +48,32 @@
     </div>
 </form>
 <script>
-
     $(document).ready(function () {
         $("#form-tambah").validate({
             rules: {
-                supplier_kode: {
+                kategori_id: {
+                    required: true,
+                    number: true
+                },
+                barang_kode: {
                     required: true,
                     minlength: 3,
                     maxlength: 20
                 },
-                supplier_nama: {
+                barang_nama: {
                     required: true,
                     minlength: 3,
                     maxlength: 100
                 },
-                supplier_alamat: {
+                harga_beli: {
                     required: true,
                     minlength: 3,
-                    maxlength: 100
+                    maxlength: 15
+                },
+                harga_jual: {
+                    required: true,
+                    minlength: 3,
+                    maxlength: 15
                 }
             },
             submitHandler: function (form) {
@@ -77,8 +101,7 @@
                             });
                             event.preventDefault();
                         }
-                        dataSupplier.ajax.reload();
-
+                        dataBarang.ajax.reload();
                     }
                 });
                 return false;
