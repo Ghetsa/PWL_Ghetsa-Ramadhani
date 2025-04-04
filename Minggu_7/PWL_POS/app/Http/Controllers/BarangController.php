@@ -9,7 +9,7 @@ use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 
 
-class ProductController extends Controller
+class BarangController extends Controller
 {
     // public function foodBeverage()
     // {
