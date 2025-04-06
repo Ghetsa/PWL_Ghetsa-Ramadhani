@@ -47,42 +47,43 @@ class AuthController extends Controller
         return redirect('login');
     }
 
-    public function show_register()
+    public function register()
     {
-        $levels = LevelModel::all(); // Ambil semua level dari database
-        return view('auth.register', compact('levels')); // Kirim ke view
+        return view('auth.register');
     }
-
-    public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'username' => 'required|string|min:3|unique:m_user,username',
-            'nama' => 'required|string|max:100',
-            'password' => 'required|min:5|confirmed',
-            'level_id' => 'required|integer'
-        ]);
     
-        if ($validator->fails()) {
+    public function postregister(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $validator = Validator::make($request->all(), [
+                'username' => 'required|string|min:4|max:20|unique:m_user,username',
+                'nama'     => 'required|string|max:50',
+                'password' => 'required|string|min:5|max:20',
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+    
+            UserModel::create([
+                'username' => $request->username,
+                'nama' => $request->nama,
+                'password' => $request->password,
+                'level_id' => 2 // default level_id untuk user biasa
+            ]);
+    
             return response()->json([
-                'status' => false,
-                'msgField' => $validator->errors(),
-                'message' => 'Validasi gagal, periksa kembali inputan Anda.'
-            ], 422);
+                'status' => true,
+                'message' => 'Registrasi berhasil!',
+                'redirect' => url('login')
+            ]);
         }
     
-        UserModel::create([
-            'username' => $request->username,
-            'nama' => $request->nama,
-            'password' => bcrypt($request->password),
-            'level_id' => $request->level_id
-        ]);
-    
-        // Kembalikan response JSON untuk AJAX
-        return response()->json([
-            'status' => true,
-            'message' => 'Registrasi berhasil! Silakan login.',
-            'redirect' => url(route('login'))
-        ]);
+        return redirect('register');
     }
     
 }

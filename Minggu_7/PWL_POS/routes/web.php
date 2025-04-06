@@ -97,9 +97,8 @@ Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postlogin']);
 Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
 
-
-Route::get('/register', [AuthController::class, 'show_register'])->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
+Route::get('register', [AuthController::class, 'register'])->name('register');
+Route::post('register', [AuthController::class, 'postregister']);
 
 // Middleware untuk semua route harus login dulu
 Route::middleware(['auth'])->group(function () {
