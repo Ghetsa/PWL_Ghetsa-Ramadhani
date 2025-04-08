@@ -19,7 +19,7 @@
         <div class="form-group">
           <label for="file_barang" class="font-weight-bold">Pilih File</label>
           <div class="custom-file">
-            <input type="file" name="file_barang" id="file_barang" class="custom-file-input" required>
+            <input type="file" class="custom-file-input" id="file_barang" name="file_barang">
             <label class="custom-file-label" for="file_barang">Choose file</label>
           </div>
           <small id="error-file_barang" class="error-text form-text text-danger"></small>
@@ -33,6 +33,12 @@
     </div>
   </div>
 </form>
+<script src="{{ asset('adminlte/plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
+<script>
+  $(document).ready(function () {
+    bsCustomFileInput.init();
+  });
+</script>
 
 <script>
   $(document).ready(function () {
