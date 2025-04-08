@@ -81,7 +81,7 @@
                 title: 'Berhasil',
                 text: response.message
               });
-              dataBarang.ajax.reload(); // Ganti sesuai nama DataTable kamu
+              tableBarang.ajax.reload(); // Ganti sesuai nama DataTable kamu
             } else {
               $('.error-text').text('');
               $.each(response.msgField, function(prefix, val) {
