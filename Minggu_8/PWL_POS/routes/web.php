@@ -36,8 +36,6 @@ Route::get('register', [AuthController::class, 'register'])->name('register');
 Route::post('register', [AuthController::class, 'postregister']);
 
 
-Route::get('/barang/import',[BarangController::class,'import']); // ajax form upload excel
-Route::post('/barang/import_ajax',[BarangController::class,'import_ajax']); // ajax import excel
 // Middleware untuk semua route harus login dulu
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [WelcomeController::class, 'index']);
@@ -67,8 +65,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get("/$resource/{id}/delete_ajax", [$controller, 'confirm_ajax']);
             Route::delete("/$resource/{id}/delete_ajax", [$controller, 'delete_ajax']);
 
-            Route::get('/$resource/import', [$controller, 'import']); // ajax form upload excel
-            Route::post('/$resource/import_ajax', [$controller, 'import_ajax']); // ajax import excel
+            Route::get('/barang/import', [BarangController::class, 'import']); // ajax form upload excel
+            Route::post('/barang/import_ajax', [BarangController::class, 'import_ajax']); // ajax import excel
+            Route::get('/barang/export_excel', [BarangController::class, 'export_excel']); // ajax import excel
         }
     });
 
@@ -95,8 +94,9 @@ Route::middleware(['auth'])->group(function () {
             Route::get("/$resource/{id}/delete_ajax", [$controller, 'confirm_ajax']);
             Route::delete("/$resource/{id}/delete_ajax", [$controller, 'delete_ajax']);
 
-            Route::get('/$resource/import', [$controller, 'import']); // ajax form upload excel
-            Route::post('/$resource/import_ajax', [$controller, 'import_ajax']); // ajax import excel            
+            Route::get('/barang/import', [BarangController::class, 'import']); // ajax form upload excel
+            Route::post('/barang/import_ajax', [BarangController::class, 'import_ajax']); // ajax import excel
+            Route::get('/barang/export_excel', [BarangController::class, 'export_excel']); // ajax import excel
         }
     });
 
