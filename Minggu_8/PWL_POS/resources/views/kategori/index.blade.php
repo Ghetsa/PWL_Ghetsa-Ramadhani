@@ -5,9 +5,9 @@
     <div class="card-header">
     <h3 class="card-title">{{ $page->title }}</h3>
     <div class="card-tools">
-      <a class="btn btn-sm btn-primary mt-1" href="{{ url('kategori/create') }}">Tambah</a>
-      <button onclick="modalAction('{{ url('kategori/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah
-      Ajax</button>
+      <button onclick="modalAction('{{ url('/kategori/import') }}')" class="btn btn-info">Import Kategori</button>
+      <button onclick="modalAction('{{ url('/kategori/create_ajax') }}')" class="btn btn-success">Tambah Data
+      (Ajax)</button>
     </div>
     </div>
 
@@ -46,7 +46,7 @@
     });
     }
 
-    var dataUser;
+    var dataKategori;
 
     $(document).ready(function () {
     dataKategori = $('#table_kategori').DataTable({

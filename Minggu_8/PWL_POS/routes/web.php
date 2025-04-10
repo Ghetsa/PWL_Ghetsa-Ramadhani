@@ -65,10 +65,11 @@ Route::middleware(['auth'])->group(function () {
             Route::get("/$resource/{id}/delete_ajax", [$controller, 'confirm_ajax']);
             Route::delete("/$resource/{id}/delete_ajax", [$controller, 'delete_ajax']);
 
-            Route::get('/barang/import', [BarangController::class, 'import']); // ajax form upload excel
-            Route::post('/barang/import_ajax', [BarangController::class, 'import_ajax']); // ajax import excel
-            Route::get('/barang/export_excel', [BarangController::class, 'export_excel']); // ajax export excel
-            Route::get('/barang/export_pdf', [BarangController::class, 'export_pdf']); // ajax export pdf
+            Route::get("/$resource/import", [$controller, 'import']);
+            Route::post("/$resource/import_ajax", [$controller, 'import_ajax']);
+            Route::get("/$resource/export_excel", [$controller, 'export_excel']);
+            Route::get("/$resource/export_pdf", [$controller, 'export_pdf']);
+
         }
     });
 
@@ -95,9 +96,11 @@ Route::middleware(['auth'])->group(function () {
             Route::get("/$resource/{id}/delete_ajax", [$controller, 'confirm_ajax']);
             Route::delete("/$resource/{id}/delete_ajax", [$controller, 'delete_ajax']);
 
-            Route::get('/barang/import', [BarangController::class, 'import']); // ajax form upload excel
-            Route::post('/barang/import_ajax', [BarangController::class, 'import_ajax']); // ajax import excel
-            Route::get('/barang/export_excel', [BarangController::class, 'export_excel']); // ajax import excel
+            Route::get("/$resource/import", [$controller, 'import']);
+            Route::post("/$resource/import_ajax", [$controller, 'import_ajax']);
+            Route::get("/$resource/export_excel", [$controller, 'export_excel']);
+            Route::get("/$resource/export_pdf", [$controller, 'export_pdf']);
+
         }
     });
 
