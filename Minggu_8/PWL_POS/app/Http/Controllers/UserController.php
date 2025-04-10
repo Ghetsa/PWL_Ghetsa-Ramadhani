@@ -400,15 +400,16 @@ class UserController extends Controller
             if (count($data) > 1) {
                 foreach ($data as $baris => $value) {
                     if ($baris > 1) {
-                        $insert[] = [
+                        UserModel::create([
                             'level_id' => $value['A'],
                             'username' => $value['B'],
                             'nama' => $value['C'],
-                            'password' => $value['D'],
+                            'password' => $value['D'], // akan otomatis di-hash
                             'created_at' => now()
-                        ];
+                        ]);
                     }
                 }
+                
                 if (count($insert) > 0) {
                     UserModel::insertOrIgnore($insert);
                 }
@@ -427,6 +428,84 @@ class UserController extends Controller
         return redirect('/');
     }
 
+
+    
+    // Tugas 2
+    public function export_excel()
+    {
+        // ambil data barang yang akan di export
+        $user = UserModel::select('user_id', 'level_id', 'username', 'nama', 'password')->orderBy('user_id')->get();
+
+        // load library excel
+        // Kemudian kita load library Spreadsheet dan kita tentukan header data pada baris pertama di excel
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet(); // ambil yang active
+
+        $sheet->setCellValue('A1', 'No');
+        $sheet->setCellValue('B1', 'ID User');
+        $sheet->setCellValue('C1', 'Level');
+        $sheet->setCellValue('D1', 'Username');
+        $sheet->setCellValue('E1', 'Nama');
+        $sheet->setCellValue('F1', 'Password');
+
+        $sheet->getStyle('A1:D1')->getFont()->setBold(true); // bold header
+
+        // Selanjutnya, kita looping data yang telah kita dapatkan dari database, kemudian kita masukkan ke dalam cell excel
+        $no = 1;
+        $baris = 2;
+        foreach ($user as $key => $value) {
+            $sheet->setCellValue('A' . $baris, $no);
+            $sheet->setCellValue('B' . $baris, $value->user_id);
+            $sheet->setCellValue('C' . $baris, $value->level->nama_level); // ambil nama level
+            $sheet->setCellValue('D' . $baris, $value->username);
+            $sheet->setCellValue('E' . $baris, $value->nama);
+            $sheet->setCellValue('F' . $baris, $value->password);
+            $baris++;
+            $no++;
+        }
+        
+
+        // Kita set lebar tiap kolom di excel untuk menyesuaikan dengan panjang karakter pada masing-masing kolom
+        foreach (range('A', 'D') as $columnID) {
+            $sheet->getColumnDimension($columnID)->setAutoSize(true); // set auto size kolom
+        }
+
+        // Bagian akhir proses export excel adalah kita set nama sheet, dan proses untuk dapat di download oleh pengguna
+        $sheet->setTitle('Data user'); // set title sheet
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $filename = 'Data User ' . date('Y-m-d H:i:s') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
+
+        $writer->save('php://output');
+        exit;
+    } // end function export_excel
+
+
+
+
+    // Tugas 3
+    public function export_pdf()
+    {
+        $user = UserModel::select('user_id', 'user_kode', 'user_nama')->orderBy('user_id')->get();
+
+
+        // use Barryvdh\\DomPDF\\Facade\\Pdf;
+        $pdf = Pdf::loadView('user.export_pdf', ['user' => $user]);
+        $pdf->setPaper('a4', 'portrait'); // set ukuran kertas dan orientasi
+        $pdf->setOption('isRemoteEnabled', true); // set true jika ada gambar dari url
+        $pdf->render();
+
+        return $pdf->stream('Data user ' . date('Y-m-d H:i:s') . '.pdf');
+    }
 
 }
 

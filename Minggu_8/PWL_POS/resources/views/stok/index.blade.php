@@ -8,6 +8,8 @@
       {{-- Tombol Tambah Stok --}}
       <div class="card-tools">
       <button onclick="modalAction('{{ url('/stok/import') }}')" class="btn btn-info">Import Stok</button>
+      <a href="{{ url(path: '/stok/export_excel') }}" class="btn btn-primary"><i class="fa fa-file-excel"></i> Export
+        Stok</a>
       <a class="btn btn-primary" href="{{ url('stok/create') }}">
         Tambah Stok
       </a>
@@ -49,10 +51,10 @@
       <tr>
         <th>ID</th>
         <th>Barang</th>
-        <th>Jumlah Stok</th>
         <th>Supplier</th>
-        <th>Tanggal</th>
-        <th>Pengguna</th>
+        <th>Tanggal Stok</th>
+        {{-- <th>Pengguna</th> --}}
+        <th>Jumlah Stok</th>
         <th>Aksi</th>
       </tr>
       </thead>
@@ -88,10 +90,10 @@
       columns: [
       { data: "stok_id", className: "text-center", orderable: true, searchable: true },
       { data: "barang.barang_nama", orderable: true, searchable: true },
-      { data: "stok_jumlah", orderable: true, searchable: true },
       { data: "supplier.supplier_nama", orderable: true, searchable: true }, // Sesuaikan dengan database
       { data: "stok_tanggal", orderable: true, searchable: true },
-      { data: "user.nama", orderable: true, searchable: true },
+      // { data: "user.nama", orderable: true, searchable: true },
+      { data: "stok_jumlah", orderable: true, searchable: true },
       { data: "aksi", className: "text-center", orderable: false, searchable: false }
       ]
     });
