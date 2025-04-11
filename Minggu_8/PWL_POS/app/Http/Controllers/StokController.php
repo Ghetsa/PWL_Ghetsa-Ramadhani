@@ -290,8 +290,10 @@ class StokController extends Controller
     // Tugas 3
     public function export_pdf()
     {
-        $stok = StokModel::select('stok_id', 'stok_kode', 'stok_nama')->orderBy('stok_id')->get();
-
+        $stok = StokModel::select('stok_id', 'supplier_id', 'barang_id', 'user_id', 'stok_tanggal', 'stok_jumlah')
+        ->orderBy('barang_id')
+        ->with('user')->with('supplier')->with('barang')
+        ->get();
 
         // use Barryvdh\\DomPDF\\Facade\\Pdf;
         $pdf = Pdf::loadView('stok.export_pdf', ['stok' => $stok]);
