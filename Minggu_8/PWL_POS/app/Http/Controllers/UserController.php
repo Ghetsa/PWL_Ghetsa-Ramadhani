@@ -4,7 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\UserModel;
 use App\Models\LevelModel;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use function Laravel\Prompts\password;
 use Yajra\DataTables\Facades\DataTables;
@@ -507,6 +508,36 @@ class UserController extends Controller
         return $pdf->stream('Data user ' . date('Y-m-d H:i:s') . '.pdf');
     }
 
+
+    //Tugas 4
+    public function updateFoto(Request $request)
+{
+    $request->validate([
+        'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+    ]);
+
+    $user = Auth::user();
+
+    // Hapus foto lama jika ada
+    if ($user->foto && Storage::exists('public/foto_profil/' . $user->foto)) {
+        Storage::delete('public/foto_profil/' . $user->foto);
+    }
+
+    // Simpan foto baru
+    $file = $request->file('foto');
+    $filename = uniqid() . '.' . $file->getClientOriginalExtension();
+    $file->storeAs('public/foto_profil', $filename);
+
+    // Simpan ke database
+    $user->foto = $filename;
+    $user->save();
+
+    return response()->json([
+        'status' => true,
+        'message' => 'Foto profil berhasil diperbarui.',
+        'foto_url' => asset('storage/foto_profil/' . $filename)
+    ]);
+}
 }
 
 
