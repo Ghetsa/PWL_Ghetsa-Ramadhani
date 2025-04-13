@@ -62,7 +62,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\UserModel::class,
+            'model' => App\Models\User::class,
         ],
 
         // 'users' => [
@@ -71,7 +71,6 @@ return [
         // ],
     ],
 
-    
     /*
     |--------------------------------------------------------------------------
     | Resetting Passwords
