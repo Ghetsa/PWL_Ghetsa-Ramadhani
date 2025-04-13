@@ -20,5 +20,6 @@
     // ============================
     // | JOBSHEET 4 - PRAKTIKUM 1 |
     // ============================
-    protected $fillable = ['level_id', 'username', 'nama'];
+   //  protected $fillable = ['level_id', 'username', 'nama'];
+    protected $fillable = [ 'username', 'nama', 'password', 'level_id'];
  }
