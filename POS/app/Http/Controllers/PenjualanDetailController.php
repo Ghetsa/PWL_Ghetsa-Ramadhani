@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\PenjualanDetailModel;
+
 
 class PenjualanDetailController extends Controller
 {
@@ -23,5 +25,20 @@ class PenjualanDetailController extends Controller
 
     // $data = DB::select('select * from t_penjualan_detail');
     // return view('penjualan_detail', ['data' => $data]);
+
+    // ============================
+    // | JOBSHEET 4 - PRAKTIKUM 1 |
+    // ============================
+        $data = [
+          'penjualan_id' => 1,
+          'barang_id' => 1,
+          'harga' => 650000,
+          'jumlah' => 1
+      ];
+      PenjualanDetailModel::insert($data);
+
+      $detail = PenjualanDetailModel::all();
+      return view('penjualan_detail', ['data' => $detail]);
+
   }
 }

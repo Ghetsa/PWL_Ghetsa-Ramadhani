@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\LevelModel;
 use Illuminate\Support\Facades\DB;
 
 class LevelController extends Controller
@@ -20,7 +21,19 @@ class LevelController extends Controller
     // $row = DB::delete('delete from m_level where level_kode = ?', ['CUS']);
     // return 'Delete data berhasil. Jumlah data yang dihapus: ' . $row . ' baris';
 
-    $data = DB::select('select * from m_level');
-    return view('level', ['data' => $data]);
+    // $data = DB::select('select * from m_level');
+    // return view('level', ['data' => $data]);
+
+    // ============================
+    // | JOBSHEET 4 - PRAKTIKUM 1 |
+    // ============================
+    $data = [
+      'level_kode' => 'CSM',
+      'level_nama' => 'Customer'
+    ];
+    LevelModel::insert($data);
+
+    $level = LevelModel::all();
+    return view('level', ['data' => $level]);
   }
 }

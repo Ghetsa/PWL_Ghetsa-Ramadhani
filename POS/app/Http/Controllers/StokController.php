@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\StokModel;
 
 class StokController extends Controller
 {
@@ -21,7 +22,22 @@ class StokController extends Controller
     // $row = DB::delete('delete from t_stok where stok_id = ?', [10]);
     // return 'Delete data berhasil, jumlah data yang dihapus: '.$row. ' baris';
 
-    $data = DB::select('select * from t_stok');
-    return view('stok', ['data' => $data]);
+    // $data = DB::select('select * from t_stok');
+    // return view('stok', ['data' => $data]);
+    
+    // ============================
+    // | JOBSHEET 4 - PRAKTIKUM 1 |
+    // ============================
+        $data = [
+          'barang_id' => 13,
+          'supplier_id' => 1,
+          'user_id' => 1,
+          'stok_tanggal' => now(),
+          'stok_jumlah' => 50
+      ];
+      StokModel::insert($data);
+
+      $stok = StokModel::all();
+      return view('stok', ['data' => $stok]);
   }
 }

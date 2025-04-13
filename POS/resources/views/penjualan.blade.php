@@ -19,7 +19,7 @@
             <td>{{ $d->user_id }}</td>
             <td>{{ $d->pembeli }}</td>
             <td>{{ $d->penjualan_kode }}</td>
-            <td>{{ $d->tanggal_penjualan }}</td>
+            <td>{{ $d->penjualan_tanggal }}</td>
         </tr>
         @endforeach
     </table>

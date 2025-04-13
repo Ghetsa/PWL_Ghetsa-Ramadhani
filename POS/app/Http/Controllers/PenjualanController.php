@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\PenjualanModel;
 
 class PenjualanController extends Controller
 {
@@ -22,7 +23,22 @@ class PenjualanController extends Controller
     // $row = DB::delete('delete from t_penjualan where penjualan_kode = ?', ['PNJ11']);
     // return 'Delete data berhasil, jumlah data yang dihapus: '.$row. ' baris';
 
-    $data = DB::select('select * from t_penjualan');
-    return view('penjualan', ['data' => $data]);
+    // $data = DB::select('select * from t_penjualan');
+    // return view('penjualan', ['data' => $data]);
+    
+    // ============================
+    // | JOBSHEET 4 - PRAKTIKUM 1 |
+    // ============================
+        $data = [
+          'user_id' => 1,
+          'pembeli' => 'Andi',
+          'penjualan_kode' => 'TRX011',
+          'penjualan_tanggal' => now()
+      ];
+      PenjualanModel::insert($data);
+
+      $penjualan = PenjualanModel::all();
+      return view('penjualan', ['data' => $penjualan]);
+
   }
 }

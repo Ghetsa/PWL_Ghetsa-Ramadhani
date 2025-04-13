@@ -20,7 +20,7 @@
             <td>{{ $d->barang_id }}</td>
             <td>{{ $d->user_id }}</td>
             <td>{{ $d->supplier_id }}</td>
-            <td>{{ $d->stok_tanggal_masuk }}</td>
+            <td>{{ $d->stok_tanggal }}</td>
             <td>{{ $d->stok_jumlah }}</td>
         </tr>
         @endforeach
