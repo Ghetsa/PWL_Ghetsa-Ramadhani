@@ -13,4 +13,10 @@ class StokModel extends Model
     protected $primaryKey = 'stok_id';
 
     protected $fillable = ['barang_id', 'user_id', 'stok_tanggal', 'stok_jumlah'];
+    
+    // Relasi ke Barang
+    public function barang()
+    {
+        return $this->belongsTo(BarangModel::class, 'barang_id');
+    }
 }
