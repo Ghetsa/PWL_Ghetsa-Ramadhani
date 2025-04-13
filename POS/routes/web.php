@@ -41,9 +41,12 @@ use App\Http\Controllers\PenjualanDetailController;
 //     return view('products');
 // });
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+
+Route::get('/', [WelcomeController::class, 'index']);
 
 Route::get('/level', [LevelController::class, 'index']);
 Route::get('/user', [UserController::class, 'index']);
