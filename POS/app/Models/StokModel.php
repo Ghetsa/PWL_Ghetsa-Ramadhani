@@ -19,4 +19,16 @@ class StokModel extends Model
     {
         return $this->belongsTo(BarangModel::class, 'barang_id');
     }
+
+    // Relasi ke User
+    public function user()
+    {
+        return $this->belongsTo(UserModel::class, 'user_id');
+    }
+
+    // Relasi ke Supplier (INI YANG BELUM ADA)
+    public function supplier()
+    {
+        return $this->belongsTo(SupplierModel::class, 'supplier_id');
+    }
 }
