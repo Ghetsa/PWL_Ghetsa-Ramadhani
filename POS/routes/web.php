@@ -38,10 +38,10 @@ Route::group(['prefix' => 'user'], function () {
     Route::post('/list', [UserController::class, 'list']); // Menampilkan data user dalam bentuk json untuk datatables
     Route::get('/create', [UserController::class, 'create']); // Menampilkan halaman form tambah user
     Route::post('/', [UserController::class, 'store']); // Menyimpan data user baru
-    Route::get('/show_ajax', [UserController::class, 'show_ajax']); // Menampilkan halaman form tambah user Ajax
     Route::get('/create_ajax', [UserController::class, 'create_ajax']); // Menampilkan halaman form tambah user Ajax
     Route::post('/ajax', [UserController::class, 'store_ajax']); // Menyimpan data user baru Ajax
     Route::get('/{id}', [UserController::class, 'show']); // Menampilkan detail user
+    Route::get('/{id}/show_ajax', [UserController::class, 'show_ajax']); // Menampilkan halaman form tambah user Ajax
     Route::get('/{id}/edit', [UserController::class, 'edit']); // Menampilkan halaman form edit user
     Route::put('/{id}', [UserController::class, 'update']); // Menyimpan perubahan data user
     Route::get('/{id}/edit_ajax', [UserController::class, 'edit_ajax']); // Menampilkan halaman form edit user Ajax
@@ -58,11 +58,11 @@ Route::group(['prefix' => 'level'], function () {
     Route::post('/list', [LevelController::class, 'list']); // menampilkan data Level dalam bentuk json untuk datatables
     Route::get('/create', [LevelController::class, 'create']); // menampilkan halaman form tambah Level
     Route::post('/', [LevelController::class, 'store']); // menyimpan data Level baru
-    Route::get('/show_ajax', [LevelController::class, 'show_ajax']); // Menampilkan halaman form tambah Stok Ajax
     Route::get('/create_ajax', [LevelController::class, 'create_ajax']); // Menampilkan halaman form tambah Level Ajax
     Route::post('/ajax', [LevelController::class, 'store_ajax']); // Menyimpan data Level baru Ajax
     Route::put('/{id}', [LevelController::class, 'update']); // menyimpan perubahan data Level
     Route::get('/{id}', [LevelController::class, 'show']); // menampilkan detail Level
+    Route::get('/{id}/show_ajax', [LevelController::class, 'show_ajax']); // Menampilkan halaman form tambah user Ajax
     Route::get('/{id}/edit', [LevelController::class, 'edit']); // menampilkan halaman form edit Level
     Route::get('/{id}/edit_ajax', [LevelController::class, 'edit_ajax']); // Menampilkan halaman form edit Level Ajax
     Route::put('/{id}/update_ajax', [LevelController::class, 'update_ajax']); // Menyimpan perubahan data Level Ajax
@@ -79,10 +79,10 @@ Route::group(['prefix' => 'kategori'], function () {
     Route::post('/list', [KategoriController::class, 'list']); // menampilkan data Kategori dalam bentuk json untuk datatables
     Route::get('/create', [KategoriController::class, 'create']); // menampilkan halaman form tambah Kategori
     Route::post('/', [KategoriController::class, 'store']); // menyimpan data Kategori baru
-    Route::get('/show_ajax', [KategoriController::class, 'show_ajax']); // Menampilkan halaman form tambah Stok Ajax
     Route::get('/create_ajax', [KategoriController::class, 'create_ajax']); // Menampilkan halaman form tambah Kategori Ajax
     Route::post('/ajax', [KategoriController::class, 'store_ajax']); // Menyimpan data Kategori baru Ajax
     Route::get('/{id}', [KategoriController::class, 'show']); // menampilkan detail Kategori
+    Route::get('/{id}/show_ajax', [KategoriController::class, 'show_ajax']); // Menampilkan halaman form tambah user Ajax
     Route::get('/{id}/edit', [KategoriController::class, 'edit']); // menampilkan halaman form edit Kategori
     Route::put('/{id}', [KategoriController::class, 'update']); // menyimpan perubahan data Kategori
     Route::get('/{id}/edit_ajax', [KategoriController::class, 'edit_ajax']); // Menampilkan halaman form edit Kategori Ajax
@@ -100,10 +100,9 @@ Route::group(['prefix' => 'stok'], function () {
     Route::post('/list', [StokController::class, 'list']); // menampilkan data Stok dalam bentuk json untuk datatables
     Route::get('/create', [StokController::class, 'create']); // menampilkan halaman form tambah Stok
     Route::post('/', [StokController::class, 'store']); // menyimpan data Stok baru
-    Route::get('/show_ajax', [StokController::class, 'show_ajax']); // Menampilkan halaman form tambah Stok Ajax
     Route::get('/create_ajax', [StokController::class, 'create_ajax']); // Menampilkan halaman form tambah Stok Ajax
-    Route::post('/ajax', [StokController::class, 'store_ajax']); // Menyimpan data Stok baru Ajax
     Route::get('/{id}', [StokController::class, 'show']); // menampilkan detail Stok
+    Route::get('/{id}/show_ajax', [StokController::class, 'show_ajax']); // Menampilkan halaman form tambah user Ajax
     Route::get('/{id}/edit', [StokController::class, 'edit']); // menampilkan halaman form edit Stok
     Route::put('/{id}', [StokController::class, 'update']); // menyimpan perubahan data Stok
     Route::get('/{id}/edit_ajax', [StokController::class, 'edit_ajax']); // Menampilkan halaman form edit Stok Ajax
@@ -121,10 +120,9 @@ Route::group(['prefix' => 'supplier'], function () {
     Route::post('/list', [SupplierController::class, 'list']); // menampilkan data Supplier dalam bentuk json untuk datatables
     Route::get('/create', [SupplierController::class, 'create']); // menampilkan halaman form tambah Supplier
     Route::post('/', [SupplierController::class, 'store']); // menyimpan data Supplier baru
-    Route::get('/show_ajax', [SupplierController::class, 'show_ajax']); // Menampilkan halaman form tambah Stok Ajax
     Route::get('/create_ajax', [SupplierController::class, 'create_ajax']); // Menampilkan halaman form tambah Supplier Ajax
-    Route::post('/ajax', [SupplierController::class, 'store_ajax']); // Menyimpan data Supplier baru Ajax
     Route::get('/{id}', [SupplierController::class, 'show']); // menampilkan detail Supplier
+    Route::get('/{id}/show_ajax', [SupplierController::class, 'show_ajax']); // Menampilkan halaman form tambah user Ajax
     Route::get('/{id}/edit', [SupplierController::class, 'edit']); // menampilkan halaman form edit Supplier
     Route::put('/{id}', [SupplierController::class, 'update']); // menyimpan perubahan data Supplier
     Route::get('/{id}/edit_ajax', [SupplierController::class, 'edit_ajax']); // Menampilkan halaman form edit Supplier Ajax
@@ -143,8 +141,8 @@ Route::group(['prefix' => 'barang'], function () {
     Route::get('/create', [BarangController::class, 'create']); // menampilkan halaman form tambah Barang
     Route::post('/', [BarangController::class, 'store']); // menyimpan data Barang baru
     Route::get('/create_ajax', [BarangController::class, 'create_ajax']); // Menampilkan halaman form tambah Barang Ajax
-    Route::post('/ajax', [BarangController::class, 'store_ajax']); // Menyimpan data Barang baru Ajax
     Route::get('/{id}', [BarangController::class, 'show']); // menampilkan detail Barang
+    Route::get('/{id}/show_ajax', [BarangController::class, 'show_ajax']); // Menampilkan halaman form tambah user Ajax
     Route::get('/{id}/show_ajax', [BarangController::class, 'show_ajax']); // Menampilkan halaman form tambah Stok Ajax
     Route::get('/{id}/edit', [BarangController::class, 'edit']); // menampilkan halaman form edit Barang
     Route::put('/{id}', [BarangController::class, 'update']); // menyimpan perubahan data Barang
@@ -163,10 +161,10 @@ Route::group(['prefix' => 'penjualan'], function () {
     Route::post('/list', [PenjualanController::class, 'list']); // menampilkan data Penjualan dalam bentuk json untuk datatables
     Route::get('/create', [PenjualanController::class, 'create']); // menampilkan halaman form tambah Penjualan
     Route::post('/', [PenjualanController::class, 'store']); // menyimpan data Penjualan baru
-    Route::get('/show_ajax', [PenjualanController::class, 'show_ajax']); // Menampilkan halaman form tambah Stok Ajax
     Route::get('/create_ajax', [PenjualanController::class, 'create_ajax']); // Menampilkan halaman form tambah Penjualan Ajax
     Route::post('/ajax', [PenjualanController::class, 'store_ajax']); // Menyimpan data Penjualan baru Ajax
     Route::get('/{id}', [PenjualanController::class, 'show']); // menampilkan detail Penjualan
+    Route::get('/{id}/show_ajax', [PenjualanController::class, 'show_ajax']); // Menampilkan halaman form tambah user Ajax
     Route::get('/{id}/edit', [PenjualanController::class, 'edit']); // menampilkan halaman form edit Penjualan
     Route::put('/{id}', [PenjualanController::class, 'update']); // menyimpan perubahan data Penjualan
     Route::get('/{id}/edit_ajax', [PenjualanController::class, 'edit_ajax']); // Menampilkan halaman form edit Penjualan Ajax

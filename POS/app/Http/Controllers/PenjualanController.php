@@ -407,6 +407,13 @@ class PenjualanController extends Controller
 
     return redirect('/');
   }
+
+  public function show_ajax($id)
+  {
+      $penjualan = PenjualanModel::find($id);
+
+      return view('penjualan.show_ajax', compact('penjualan'));
+  }
 }
 // public function index()
 // {

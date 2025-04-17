@@ -287,6 +287,13 @@ class SupplierController extends Controller
     }
     return redirect('/');
   }
+
+  public function show_ajax($id)
+  {
+      $supplier = SupplierModel::find($id);
+
+      return view('supplier.show_ajax', compact('supplier'));
+  }
 }
 
 // public function index()
