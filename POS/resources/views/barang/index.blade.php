@@ -58,7 +58,7 @@
 
 @push('js')
   <script>
-  function modalAction(url = '') {
+    function modalAction(url = '') {
     $('#myModal').load(url, function () {
       $('#myModal').modal('show');
     });
@@ -122,11 +122,25 @@
       }
       ]
     });
+    // Event tombol lihat detail
+    $(document).on('click', '.btn-show-barang', function (e) {
+      e.preventDefault();
+      var id = $(this).data('id');
 
+      $.ajax({
+      url: '/barang/show_ajax/' + id,
+      type: 'GET',
+      success: function (response) {
+        $('#myModal').html(response).modal('show');
+      },
+      error: function () {
+        Swal.fire('Error', 'Gagal memuat detail barang', 'error');
+      }
+      });
+    });
     $('#kategori_id').on('change', function () {
       dataBarang.ajax.reload();
     });
-
     });
   </script>
 @endpush

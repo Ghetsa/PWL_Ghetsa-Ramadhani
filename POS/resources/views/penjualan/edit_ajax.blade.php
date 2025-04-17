@@ -74,7 +74,7 @@
                             <div class="barang-detail row mb-2 align-items-end">
                                 <div class="form-group col-md-4">
                                     <label>Barang</label>
-                                    <select name="detail[{{ $index }}][barang_id]" class="form-control barang-select" required>
+                                    <select name="barang_id[]" class="form-control barang-select" required>
                                         <option value="">- Pilih Barang -</option>
                                         @foreach ($barang as $b)
                                             <option value="{{ $b->barang_id }}" data-harga="{{ $b->harga_jual }}"
@@ -88,11 +88,11 @@
                                     <label>Harga</label>
                                     <input type="number" class="form-control harga" value="{{ $detail->harga }}" disabled
                                         required>
-                                    <input type="hidden" name="detail[{{ $index }}][harga]" class="harga-hidden" value="{{ $detail->harga }}">
+                                    <input type="hidden" name="harga[]" class="harga-hidden" value="{{ $detail->harga }}">
                                 </div>
                                 <div class="form-group col-md-3">
                                     <label>Jumlah</label>
-                                    <input type="number" name="detail[{{ $index }}][jumlah]" class="form-control" value="{{ $detail->jumlah }}"
+                                    <input type="number" name="jumlah[]" class="form-control" value="{{ $detail->jumlah }}"
                                         required>
                                 </div>
                                 <div class="form-group col-md-2">
@@ -103,7 +103,6 @@
                             </div>
                         @endforeach
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm mb-3" id="addBarang">Tambah Barang</button>
                 </div>
                 <div class="modal-footer">
                     <button type="button" data-dismiss="modal" class="btn btn-warning">Batal</button>
@@ -112,7 +111,6 @@
             </div>
         </div>
     </form>
-
     <script>
         $(document).ready(function () {
             $("#form-edit-penjualan").validate({

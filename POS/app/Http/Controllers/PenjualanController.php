@@ -137,48 +137,46 @@ class PenjualanController extends Controller
   }
 
   public function update(Request $request, $id)
-  {
+{
     $request->validate([
-      'user_id' => 'required|integer',
-      'penjualan_kode' => 'required|string',
-      'penjualan_tanggal' => 'required|date',
-      'detail' => 'required|array',  // Pastikan detail penjualan ada
+        'user_id' => 'required|integer',
+        'penjualan_kode' => 'required|string',
+        'penjualan_tanggal' => 'required|date',
+        'barang_id' => 'required|array',
+        'harga' => 'required|array',
+        'jumlah' => 'required|array',
     ]);
 
-    // Update data penjualan utama
+    // Hitung total bayar
+    $total_bayar = 0;
+    foreach ($request->barang_id as $i => $barang_id) {
+        $total_bayar += $request->harga[$i] * $request->jumlah[$i];
+    }
+
+    // Update data utama
     $penjualan = PenjualanModel::find($id);
     $penjualan->update([
-      'user_id' => $request->user_id,
-      'penjualan_kode' => $request->penjualan_kode,
-      'penjualan_tanggal' => $request->penjualan_tanggal,
+        'user_id' => $request->user_id,
+        'penjualan_kode' => $request->penjualan_kode,
+        'penjualan_tanggal' => $request->penjualan_tanggal,
+        'total_bayar' => $total_bayar,
     ]);
 
-    // Update detail penjualan
-    foreach ($request->detail as $index => $detail) {
-      // Temukan detail yang sesuai dengan penjualan
-      $penjualanDetail = PenjualanDetailModel::where('penjualan_id', $id)
-        ->where('barang_id', $detail['barang_id'])
-        ->first();
+    // Hapus semua detail lama
+    PenjualanDetailModel::where('penjualan_id', $id)->delete();
 
-      // Jika detail sudah ada, update
-      if ($penjualanDetail) {
-        $penjualanDetail->update([
-          'barang_id' => $detail['barang_id'],
-          'jumlah' => $detail['jumlah'],
-        ]);
-      } else {
-        // Jika detail belum ada, buat data baru
+    // Simpan detail baru
+    foreach ($request->barang_id as $i => $barang_id) {
         PenjualanDetailModel::create([
-          'penjualan_id' => $id,
-          'barang_id' => $detail['barang_id'],
-          'harga' => $detail['harga'],
-          'jumlah' => $detail['jumlah'],
+            'penjualan_id' => $id,
+            'barang_id' => $barang_id,
+            'harga' => $request->harga[$i],
+            'jumlah' => $request->jumlah[$i]
         ]);
-      }
     }
 
     return redirect('/penjualan')->with('success', 'Data penjualan berhasil diubah');
-  }
+}
 
 
   public function destroy($id)
@@ -229,14 +227,18 @@ class PenjualanController extends Controller
       }
 
       DB::beginTransaction();
-
+      $total_bayar = 0;
+      foreach ($request->barang_id as $i => $barang_id) {
+        $total_bayar += $request->harga[$i] * $request->jumlah[$i];
+      }
       try {
         // Simpan data utama penjualan
         $penjualan = PenjualanModel::create([
           'user_id' => $request->user_id,
           'pembeli' => $request->pembeli,
           'penjualan_kode' => $request->penjualan_kode,
-          'penjualan_tanggal' => $request->penjualan_tanggal
+          'penjualan_tanggal' => $request->penjualan_tanggal,
+          'total_bayar' => $total_bayar
         ]);
 
         // Loop barang yang dibeli
@@ -304,11 +306,13 @@ class PenjualanController extends Controller
         'pembeli' => 'required|string|max:255',
         'penjualan_kode' => 'required|string',
         'penjualan_tanggal' => 'required|date',
-        'detail' => 'required|array',  // Pastikan detail penjualan ada
+        'barang_id' => 'required|array',
+        'harga' => 'required|array',
+        'jumlah' => 'required|array',
       ];
-
+  
       $validator = Validator::make($request->all(), $rules);
-
+  
       if ($validator->fails()) {
         return response()->json([
           'status' => false,
@@ -316,25 +320,63 @@ class PenjualanController extends Controller
           'msgField' => $validator->errors()
         ]);
       }
-
-      $penjualan = PenjualanModel::find($id);
-      if ($penjualan) {
-        $penjualan->update($request->all());
-
+  
+      DB::beginTransaction();
+      try {
+        $penjualan = PenjualanModel::find($id);
+  
+        if (!$penjualan) {
+          return response()->json([
+            'status' => false,
+            'message' => 'Data penjualan tidak ditemukan.'
+          ]);
+        }
+  
+        // Hitung ulang total bayar
+        $total_bayar = 0;
+        foreach ($request->barang_id as $i => $barang_id) {
+          $total_bayar += $request->harga[$i] * $request->jumlah[$i];
+        }
+  
+        // Update data utama
+        $penjualan->update([
+          'user_id' => $request->user_id,
+          'pembeli' => $request->pembeli,
+          'penjualan_kode' => $request->penjualan_kode,
+          'penjualan_tanggal' => $request->penjualan_tanggal,
+          'total_bayar' => $total_bayar
+        ]);
+  
+        // Hapus detail lama
+        PenjualanDetailModel::where('penjualan_id', $penjualan->penjualan_id)->delete();
+  
+        // Simpan detail baru
+        foreach ($request->barang_id as $i => $barang_id) {
+          PenjualanDetailModel::create([
+            'penjualan_id' => $penjualan->penjualan_id,
+            'barang_id' => $barang_id,
+            'harga' => $request->harga[$i],
+            'jumlah' => $request->jumlah[$i]
+          ]);
+        }
+  
+        DB::commit();
         return response()->json([
           'status' => true,
-          'message' => 'Data penjualan berhasil diperbarui'
+          'message' => 'Data penjualan berhasil diperbarui.'
         ]);
-      } else {
+      } catch (\Exception $e) {
+        DB::rollBack();
         return response()->json([
           'status' => false,
-          'message' => 'Data penjualan tidak ditemukan'
+          'message' => 'Terjadi kesalahan: ' . $e->getMessage()
         ]);
       }
     }
-
+  
     return redirect('/');
   }
+  
 
   // Konfirmasi hapus data penjualan (opsional: untuk modal AJAX)
   public function confirm_ajax(string $id)
