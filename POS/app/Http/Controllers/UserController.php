@@ -2,10 +2,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserModel;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use App\Models\LevelModel;
+use Illuminate\Http\Request;
+
+use Illuminate\Support\Facades\Hash;
+use function Laravel\Prompts\password;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Validator;
+
 
 class UserController extends Controller
 {
@@ -30,33 +34,6 @@ class UserController extends Controller
         $level = LevelModel::all(); // ambil data level untuk filter level
 
         return view('user.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'level' => $level, 'activeMenu' => $activeMenu]);
-    }
-
-    // Praktikum 3 - Langkah 7
-    // Ambil data user dalam bentuk JSON untuk DataTables
-    public function list(Request $request)
-    {
-        $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
-            ->with('level');
-
-        // Filter data user berdasarkan level_id
-        if ($request->level_id) {
-            $users->where('level_id', $request->level_id);
-        }
-
-        return DataTables::of($users)
-            // Menambahkan kolom index / nomor urut (default nama kolom: DT_RowIndex)
-            ->addIndexColumn()
-            ->addColumn('aksi', function ($user) { // Menambahkan kolom aksi
-                $btn = '<a href="' . url('/user/' . $user->user_id) . '" class="btn btn-info btn-sm">Detail</a> ';
-                $btn .= '<a href="' . url('/user/' . $user->user_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
-                $btn .= '<form class="d-inline-block" method="POST" action="' . url('/user/' . $user->user_id) . '">'
-                    . csrf_field() . method_field('DELETE') .
-                    '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\')">Hapus</button></form>';
-                return $btn;
-            })
-            ->rawColumns(['aksi']) // Memberitahu bahwa kolom aksi berisi HTML
-            ->make(true);
     }
 
     // Praktikum 3 - Langkah 9
@@ -98,7 +75,7 @@ class UserController extends Controller
         UserModel::create([
             'username' => $request->username,
             'nama' => $request->nama,
-            'password' => bcrypt($request->password), // password dienkripsi sebelum disimpan
+            'password' => $request->password, // password dienkripsi sebelum disimpan
             'level_id' => $request->level_id
         ]);
 
@@ -152,7 +129,7 @@ class UserController extends Controller
         ]);
     }
 
-    
+
     // Menyimpan perubahan data user
     public function update(Request $request, string $id)
     {
@@ -194,307 +171,464 @@ class UserController extends Controller
             return redirect('/user')->with('error', 'Data user gagal dihapus karena masih terdapat tabel lain yang terkait dengan data ini');
         }
     }
-  }
-    // ============================
-    // | JOBSHEET 3 - PRAKTIKUM 4 |
-    // ============================
-    // DB::insert('insert into m_user(level_id, username, nama, password, created_at) values(?, ?, ?, ?, ?)', [3, 'staf1', 'staf pertama', Hash::make('123456'), now()]);
-    // return 'Insert data baru berhasil';
 
-    // $row = DB::update('update m_user set username = ? where username = ?', ['kasirSatu', 'kasir1']);
-    // return 'Update data berhasil, jumlah data yang diupdate: '.$row. ' baris';
+    // =============================================
+    // JOBSHEET 6
+    // =============================================
+    public function create_ajax()
+    {
+        $level = LevelModel::select('level_id', 'level_nama')->get();
+        return view('user.create_ajax', ['level' => $level]);
+    }
+    public function store_ajax(Request $request)
+    {
+        // cek apakah request berupa ajax
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'level_id' => 'required|integer',
+                'username' => 'required|string|min:3|unique:m_user,username',
+                'nama' => 'required|string|max:100',
+                'password' => 'required|min:6'
+            ];
 
-    // $row = DB::delete('delete from m_user where username = ?', ['kasirSatu']);
-    // return 'Delete data berhasil, jumlah data yang dihapus: '.$row. ' baris';
+            $validator = Validator::make($request->all(), $rules);
 
-    // $data = DB::select('select * from m_user');
-    // return view('user', ['data' => $data]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false, // response status, false: error/gagal, true: berhasil
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors(), // pesan error validasi
+                ]);
+            }
 
-    // public function user($id, $name) {
-    //         return view('user', compact('id', 'name'));
-    // }
+            UserModel::create($request->all());
+            return response()->json([
+                'status' => true,
+                'message' => 'Data user berhasil disimpan'
+            ]);
+        }
 
+        redirect('/');
+    }
 
-    // ============================
-    // | JOBSHEET 3 - PRAKTIKUM 5 |
-    // ============================
-    // tambah data user dengan Eloquent Model
-    // $data = [
-    //   //  'username' => 'customer-1',
-    //   //  'nama' => 'Pelanggan',
-    //   //  'password' => Hash::make('12345'),
-    //   //  'level_id' => 4
-    //   'nama' => 'Pelanggan Pertama',
-    // ];
-    // //  UserModel::insert($data); // tambahkan data ke tabel m_user
-    // UserModel::where('username', 'customer-1')->update($data); // update data user
+    
+    // Praktikum 2 - Langkah 2
+    // Ambil data user dalam bentuk json untuk datatables
+    public function list(Request $request)
+    {
+        $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
+            ->with('level');
 
-    // //coba akses model UserModel
-    // $user = UserModel::all(); // ambil semua data dari tabel m_user
-    // return view('user', ['data' => $user]);
+        // Filter data user berdasarkan level_id
+        if ($request->level_id) {
+            $users->where('level_id', $request->level_id);
+        }
 
+        return DataTables::of($users)
+            ->addIndexColumn()  // menambahkan kolom index / no urut (default nama kolom: DT_RowIndex)
+            ->addColumn('aksi', function ($user) {  // menambahkan kolom aksi
+    
+                /* $btn = '<a href="'.url('/user/' . $user->user_id).'" class="btn btn-info btn-sm">Detail</a> ';
+            $btn .= '<a href="'.url('/user/' . $user->user_id . '/edit').'" class="btn btn-warning btn-sm">Edit</a> ';
+            $btn .= '<form class="d-inline-block" method="POST" action="'. url('/user/'.$user->user_id).'">'
+            . csrf_field() . method_field('DELETE') .
+            '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\');">Hapus</button></form>';*/
+                $btn = '<button onclick="modalAction(\'' . url('/user/' . $user->user_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/user/' . $user->user_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/user/' . $user->user_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
 
-    // ============================
-    // | JOBSHEET 4 - PRAKTIKUM 1 |
-    // ============================
-    // $data = [
-    //   'level_id' => 2,
-    //   'username' => 'manager2',
-    //   'nama' => 'Lily Manager 2',
-    //   'password' => Hash::make('manager2')
-    // ];
-    // UserModel::insert($data);
+                return $btn;
+            })
+            ->rawColumns(['aksi']) // memberitahu bahwa kolom aksi adalah html
+            ->make(true);
+    }
 
-    // $user = UserModel::all();
-    // return view('user', ['data' => $user]);
+    // Praktikum 2 - Langkah 4
+    // Menampilkan halaman form edit user ajax
+    public function edit_ajax(string $id)
+    {
+        $user = UserModel::find($id);
+        $level = LevelModel::select('level_id', 'level_nama')->get();
 
-    // ============================
-    // | JOBSHEET 4 - PRAKTIKUM 2 |
-    // ============================
-    // Praktikum 2.1 - Langkah 1
-    // $user = UserModel::find(1);
-    // return view('user', ['data' => $user]);
+        return view('user.edit_ajax', ['user' => $user, 'level' => $level]);
+    }
 
-    // ---------------------------------------------
-    // Praktikum 2.1 - Langkah 4
-    // $user = UserModel::where('level_id', 1)->first();
-    // return view('user', ['data' => $user]);
+    // Praktikum 2 - Langkah 6
+    public function update_ajax(Request $request, $id)
+    {
+        // cek apakah request dari ajax
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'level_id' => 'required|integer',
+                'username' => 'required|max:20|unique:m_user,username,' . $id . ',user_id',
+                'nama' => 'required|max:100',
+                'password' => 'nullable|min:6|max:20'
+            ];
 
-    // ---------------------------------------------
-    // Praktikum 2.1 - Langkah 6
-    // $user = UserModel::firstWhere('level_id', 1);
-    // return view('user', ['data' => $user]);
+            // use Illuminate\Support\Facades\Validator;
+            $validator = Validator::make($request->all(), $rules);
 
-    // ---------------------------------------------
-    // Praktikum 2.1 - Langkah 8
-    // $user = UserModel::findOr(1, ['username', 'nama'], function () {
-    //     abort(404);
-    // });
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false, // respon json, true: berhasil, false: gagal
+                    'message' => 'Validasi gagal.',
+                    'msgfield' => $validator->errors() // menunjukkan field mana yang error
+                ]);
+            }
 
-    // return view('user', ['data' => $user]);
+            $check = UserModel::find($id);
+            if ($check) {
+                if (!$request->filled('password')) { // jika password tidak diisi, maka hapus dari request
+                    $request->request->remove('password');
+                }
 
-    // ---------------------------------------------
-    // Praktikum 2.1 - Langkah 10
-    // $user = UserModel::findOr(20, ['username', 'nama'], function () {
-    //     abort(404);
-    // });
+                $check->update($request->all());
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil diupdate'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
+            }
+        }
+        return redirect('/');
+    }
 
-    // ---------------------------------------------
-    // Praktikum 2.2 - Langkah 1
-    // $user = UserModel::findOrFail(1);
-    // return view('user', ['data' => $user]);
+    // Praktikum 3 - Langkah 3
+    public function confirm_ajax(string $id)
+    {
+        $user = UserModel::find($id);
 
-    // ---------------------------------------------
-    // Praktikum 2.2 - Langkah 3
-    // $user = UserModel::where('username', 'manager33')->firstOrFail();
-    // return view('user', ['data' => $user]);
-
-    // ---------------------------------------------
-    // Praktikum 2.3 - Langkah 1
-    // $user = UserModel::where('level_id', 2)->count();
-    // dd($user);
-    // return view('user', ['data' => $user]);
-
-    // ---------------------------------------------
-    // Praktikum 2.3 - Langkah 3
-    // $user = UserModel::where('level_id', 2)->count();
-    // return view('user', ['data' => $user]);
-
-    // ---------------------------------------------
-    // Praktikum 2.4 - Langkah 1
-    // $user = UserModel::firstOrCreate(
-    //     [
-    //         'username' => 'manager',
-    //         'nama' => 'Manager',
-    //     ]
-    // );
-
-    // return view('user', ['data' => $user]);
-
-    // ---------------------------------------------
-    // Praktikum 2.4 - Langkah 4
-    //         $user = UserModel::firstOrCreate(
-    //     [
-    //         'username' => 'manager22',
-    //         'nama' => 'Manager Dua Dua',
-    //         'password' => Hash::make('12345'),
-    //         'level_id' => 2
-    //     ]
-    // );
-
-    // return view('user', ['data' => $user]);
-
-    // ---------------------------------------------
-    // Praktikum 2.4 - Langkah 6
-    // $user = UserModel::firstOrNew(
-    //     [
-    //         'username' => 'manager',
-    //         'nama' => 'Manager',
-    //     ],
-    // );
-
-    // return view('user', ['data' => $user]);
-
-    // ---------------------------------------------
-    // Praktikum 2.4 - Langkah 8
-    // $user = UserModel::firstOrNew(
-    //     [
-    //         'username' => 'manager33',
-    //         'nama' => 'Manager Tiga Tiga',
-    //         'password' => Hash::make('12345'),
-    //         'level_id' => 2
-    //     ]
-    // );
-
-    // return view('user', ['data' => $user]);
-
-    // ---------------------------------------------
-    // Praktikum 2.4 - Langkah 10
-    // $user = UserModel::firstOrNew(
-    //   [
-    //         'username' => 'manager33',
-    //         'nama' => 'Manager Tiga Tiga',
-    //         'password' => Hash::make('12345'),
-    //         'level_id' => 2
-    //     ]
-    // );
-    // $user->save();
-    // return view('user', ['data' => $user]);
-
-    // ---------------------------------------------
-    // Praktikum 2.5 - Langkah 1
-    // $user = UserModel::create([
-    //     'username' => 'manager55',
-    //     'nama' => 'Manager55',
-    //     'password' => Hash::make('12345'),
-    //     'level_id' => 2,
-    // ]);
-
-    // $user->username = 'manager56';
-
-    // $user->isDirty(); // true
-    // $user->isDirty('username'); // true
-    // $user->isDirty('nama'); // false
-    // $user->isDirty(['nama', 'username']); // true
-
-    // $user->isClean(); // false
-    // $user->isClean('username'); // false
-    // $user->isClean('nama'); // true
-    // $user->isClean(['nama', 'username']); // false
-
-    // $user->save();
-
-    // $user->isDirty(); // false
-    // $user->isClean(); // true
-    // dd($user->isDirty());
-
-    // ---------------------------------------------
-    // Praktikum 2.5 - Langkah 3
-    // $user = UserModel::create([
-    //     'username' => 'manager11',
-    //     'nama' => 'Manager11',
-    //     'password' => Hash::make('12345'),
-    //     'level_id' => 2,
-    // ]);
-
-    // $user->username = 'manager12';
-
-    // $user->save();
-
-    // $user->wasChanged(); // true
-    // $user->wasChanged('username'); // true
-    // $user->wasChanged(['username', 'level_id']); // true
-    // $user->wasChanged('nama'); // false
-    // dd($user->wasChanged(['nama', 'username'])); // true
+        return view('user.confirm_ajax', ['user' => $user]);
+    }
 
 
-    // ============================================
-    // JOBSHEET 5
-    // ============================================
-    // Praktikum 3 - Langkah 4
-  //   $breadcrumb = (object) [
-  //     'title' => 'Daftar User',
-  //     'list' => ['Home', 'User']
-  //   ];
+    // Praktikum 3 - Langkah 5
+    public function delete_ajax(Request $request, $id)
+    {
+        // cek apakah request dari ajax
+        if ($request->ajax() || $request->wantsJson()) {
+            $user = UserModel::find($id);
+            if ($user) {
+                $user->delete();
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil dihapus'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data tidak ditemukan'
+                ]);
+            }
+        }
+        return redirect('/');
+    }
 
-  //   $page = (object) [
-  //     'title' => 'Daftar user yang terdaftar dalam sistem'
-  //   ];
+}
+// ============================
+// | JOBSHEET 3 - PRAKTIKUM 4 |
+// ============================
+// DB::insert('insert into m_user(level_id, username, nama, password, created_at) values(?, ?, ?, ?, ?)', [3, 'staf1', 'staf pertama', Hash::make('123456'), now()]);
+// return 'Insert data baru berhasil';
 
-  //   $activeMenu = 'user'; // set menu yang sedang aktif
+// $row = DB::update('update m_user set username = ? where username = ?', ['kasirSatu', 'kasir1']);
+// return 'Update data berhasil, jumlah data yang diupdate: '.$row. ' baris';
 
-  //   return view('user.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'activeMenu' => $activeMenu]);
+// $row = DB::delete('delete from m_user where username = ?', ['kasirSatu']);
+// return 'Delete data berhasil, jumlah data yang dihapus: '.$row. ' baris';
 
-  // }
+// $data = DB::select('select * from m_user');
+// return view('user', ['data' => $data]);
 
-  // public function tambah()
-  // {
-  //   return view('user_tambah');
-  // }
-  // public function tambah_simpan(Request $request)
-  // {
-  //   UserModel::create([
-  //     'username' => $request->username,
-  //     'nama' => $request->nama,
-  //     'password' => Hash::make('$request->password'),
-  //     'level_id' => $request->level_id
-  //   ]);
-
-  //   return redirect('/user');
-  // }
-  // public function ubah($id)
-  // {
-  //   $user = UserModel::find($id);
-  //   return view('user_ubah', ['data' => $user]);
-  // }
-  // public function ubah_simpan($id, Request $request)
-  // {
-  //   $user = UserModel::find($id);
-
-  //   $user->username = $request->username;
-  //   $user->nama = $request->nama;
-  //   $user->password = Hash::make('$request->password');
-  //   $user->level_id = $request->level_id;
+// public function user($id, $name) {
+//         return view('user', compact('id', 'name'));
+// }
 
 
-  //   $user->save();
+// ============================
+// | JOBSHEET 3 - PRAKTIKUM 5 |
+// ============================
+// tambah data user dengan Eloquent Model
+// $data = [
+//   //  'username' => 'customer-1',
+//   //  'nama' => 'Pelanggan',
+//   //  'password' => Hash::make('12345'),
+//   //  'level_id' => 4
+//   'nama' => 'Pelanggan Pertama',
+// ];
+// //  UserModel::insert($data); // tambahkan data ke tabel m_user
+// UserModel::where('username', 'customer-1')->update($data); // update data user
 
-  //   return redirect('/user');
-  // }
-  // public function hapus($id)
-  // {
-  //   $user = UserModel::find($id);
-  //   $user->delete();
-
-  //   return redirect('/user');
-  // }
+// //coba akses model UserModel
+// $user = UserModel::all(); // ambil semua data dari tabel m_user
+// return view('user', ['data' => $user]);
 
 
-  // // ============================================
-  // // JOBSHEET 5
-  // // ============================================
-  // // Praktikum 3 - Langkah 4
+// ============================
+// | JOBSHEET 4 - PRAKTIKUM 1 |
+// ============================
+// $data = [
+//   'level_id' => 2,
+//   'username' => 'manager2',
+//   'nama' => 'Lily Manager 2',
+//   'password' => Hash::make('manager2')
+// ];
+// UserModel::insert($data);
 
-  // // Ambil data user dalam bentuk JSON untuk DataTables
-  // public function list(Request $request)
-  // {
-  //   $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
-  //     ->with('level');
+// $user = UserModel::all();
+// return view('user', ['data' => $user]);
 
-  //   return DataTables::of($users)
-  //     // Menambahkan kolom index / nomor urut (default nama kolom: DT_RowIndex)
-  //     ->addIndexColumn()
-  //     ->addColumn('aksi', function ($user) {
-  //       $btn = '<a href="' . url('/user/' . $user->user_id) . '" class="btn btn-info btn-sm">Detail</a> ';
-  //       $btn .= '<a href="' . url('/user/' . $user->user_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
-  //       $btn .= '<form class="d-inline-block" method="POST" action="' . url('/user/' . $user->user_id) . '">'
-  //         . csrf_field() . method_field('DELETE')
-  //         . '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\')">Hapus</button></form>';
-  //       return $btn;
-  //     })
-  //     ->rawColumns(['aksi']) // Memberitahu bahwa kolom aksi berisi HTML
-  //     ->make(true);
-  // }
+// ============================
+// | JOBSHEET 4 - PRAKTIKUM 2 |
+// ============================
+// Praktikum 2.1 - Langkah 1
+// $user = UserModel::find(1);
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.1 - Langkah 4
+// $user = UserModel::where('level_id', 1)->first();
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.1 - Langkah 6
+// $user = UserModel::firstWhere('level_id', 1);
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.1 - Langkah 8
+// $user = UserModel::findOr(1, ['username', 'nama'], function () {
+//     abort(404);
+// });
+
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.1 - Langkah 10
+// $user = UserModel::findOr(20, ['username', 'nama'], function () {
+//     abort(404);
+// });
+
+// ---------------------------------------------
+// Praktikum 2.2 - Langkah 1
+// $user = UserModel::findOrFail(1);
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.2 - Langkah 3
+// $user = UserModel::where('username', 'manager33')->firstOrFail();
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.3 - Langkah 1
+// $user = UserModel::where('level_id', 2)->count();
+// dd($user);
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.3 - Langkah 3
+// $user = UserModel::where('level_id', 2)->count();
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.4 - Langkah 1
+// $user = UserModel::firstOrCreate(
+//     [
+//         'username' => 'manager',
+//         'nama' => 'Manager',
+//     ]
+// );
+
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.4 - Langkah 4
+//         $user = UserModel::firstOrCreate(
+//     [
+//         'username' => 'manager22',
+//         'nama' => 'Manager Dua Dua',
+//         'password' => Hash::make('12345'),
+//         'level_id' => 2
+//     ]
+// );
+
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.4 - Langkah 6
+// $user = UserModel::firstOrNew(
+//     [
+//         'username' => 'manager',
+//         'nama' => 'Manager',
+//     ],
+// );
+
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.4 - Langkah 8
+// $user = UserModel::firstOrNew(
+//     [
+//         'username' => 'manager33',
+//         'nama' => 'Manager Tiga Tiga',
+//         'password' => Hash::make('12345'),
+//         'level_id' => 2
+//     ]
+// );
+
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.4 - Langkah 10
+// $user = UserModel::firstOrNew(
+//   [
+//         'username' => 'manager33',
+//         'nama' => 'Manager Tiga Tiga',
+//         'password' => Hash::make('12345'),
+//         'level_id' => 2
+//     ]
+// );
+// $user->save();
+// return view('user', ['data' => $user]);
+
+// ---------------------------------------------
+// Praktikum 2.5 - Langkah 1
+// $user = UserModel::create([
+//     'username' => 'manager55',
+//     'nama' => 'Manager55',
+//     'password' => Hash::make('12345'),
+//     'level_id' => 2,
+// ]);
+
+// $user->username = 'manager56';
+
+// $user->isDirty(); // true
+// $user->isDirty('username'); // true
+// $user->isDirty('nama'); // false
+// $user->isDirty(['nama', 'username']); // true
+
+// $user->isClean(); // false
+// $user->isClean('username'); // false
+// $user->isClean('nama'); // true
+// $user->isClean(['nama', 'username']); // false
+
+// $user->save();
+
+// $user->isDirty(); // false
+// $user->isClean(); // true
+// dd($user->isDirty());
+
+// ---------------------------------------------
+// Praktikum 2.5 - Langkah 3
+// $user = UserModel::create([
+//     'username' => 'manager11',
+//     'nama' => 'Manager11',
+//     'password' => Hash::make('12345'),
+//     'level_id' => 2,
+// ]);
+
+// $user->username = 'manager12';
+
+// $user->save();
+
+// $user->wasChanged(); // true
+// $user->wasChanged('username'); // true
+// $user->wasChanged(['username', 'level_id']); // true
+// $user->wasChanged('nama'); // false
+// dd($user->wasChanged(['nama', 'username'])); // true
+
+
+// ============================================
+// JOBSHEET 5
+// ============================================
+// Praktikum 3 - Langkah 4
+//   $breadcrumb = (object) [
+//     'title' => 'Daftar User',
+//     'list' => ['Home', 'User']
+//   ];
+
+//   $page = (object) [
+//     'title' => 'Daftar user yang terdaftar dalam sistem'
+//   ];
+
+//   $activeMenu = 'user'; // set menu yang sedang aktif
+
+//   return view('user.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'activeMenu' => $activeMenu]);
+
+// }
+
+// public function tambah()
+// {
+//   return view('user_tambah');
+// }
+// public function tambah_simpan(Request $request)
+// {
+//   UserModel::create([
+//     'username' => $request->username,
+//     'nama' => $request->nama,
+//     'password' => Hash::make('$request->password'),
+//     'level_id' => $request->level_id
+//   ]);
+
+//   return redirect('/user');
+// }
+// public function ubah($id)
+// {
+//   $user = UserModel::find($id);
+//   return view('user_ubah', ['data' => $user]);
+// }
+// public function ubah_simpan($id, Request $request)
+// {
+//   $user = UserModel::find($id);
+
+//   $user->username = $request->username;
+//   $user->nama = $request->nama;
+//   $user->password = Hash::make('$request->password');
+//   $user->level_id = $request->level_id;
+
+
+//   $user->save();
+
+//   return redirect('/user');
+// }
+// public function hapus($id)
+// {
+//   $user = UserModel::find($id);
+//   $user->delete();
+
+//   return redirect('/user');
+// }
+
+
+// // ============================================
+// // JOBSHEET 5
+// // ============================================
+// // Praktikum 3 - Langkah 4
+
+// // Ambil data user dalam bentuk JSON untuk DataTables
+// public function list(Request $request)
+// {
+//   $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
+//     ->with('level');
+
+//   return DataTables::of($users)
+//     // Menambahkan kolom index / nomor urut (default nama kolom: DT_RowIndex)
+//     ->addIndexColumn()
+//     ->addColumn('aksi', function ($user) {
+//       $btn = '<a href="' . url('/user/' . $user->user_id) . '" class="btn btn-info btn-sm">Detail</a> ';
+//       $btn .= '<a href="' . url('/user/' . $user->user_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
+//       $btn .= '<form class="d-inline-block" method="POST" action="' . url('/user/' . $user->user_id) . '">'
+//         . csrf_field() . method_field('DELETE')
+//         . '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\')">Hapus</button></form>';
+//       return $btn;
+//     })
+//     ->rawColumns(['aksi']) // Memberitahu bahwa kolom aksi berisi HTML
+//     ->make(true);
+// }
 
 
 // }

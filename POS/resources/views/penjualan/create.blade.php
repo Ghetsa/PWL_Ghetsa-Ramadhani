@@ -50,14 +50,14 @@
 
       <!-- Input Tanggal Penjualan -->
       <div class="form-group row">
-      <label class="col-2 control-label col-form-label">Tanggal Penjualan</label>
-      <div class="col-10">
-        <input type="datetime-local" class="form-control" id="penjualan_tanggal" name="penjualan_tanggal"
-        value="{{ old('penjualan_tanggal') }}" required>
-        @error('penjualan_tanggal')
-      <small class="form-text text-danger">{{ $message }}</small>
-    @enderror
-      </div>
+        <label class="col-2 control-label col-form-label">Tanggal Penjualan</label>
+          <div class="col-10">
+            <input type="datetime-local" class="form-control" id="penjualan_tanggal" name="penjualan_tanggal"
+            value="{{ old('penjualan_tanggal') }}" required>
+            @error('penjualan_tanggal')
+              <small class="form-text text-danger">{{ $message }}</small>
+            @enderror
+          </div>
       </div>
 
       <!-- === Detail Penjualan === -->
