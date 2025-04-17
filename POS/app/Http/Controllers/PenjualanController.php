@@ -238,20 +238,20 @@ class PenjualanController extends Controller
           'penjualan_kode' => $request->penjualan_kode,
           'penjualan_tanggal' => $request->penjualan_tanggal
         ]);
-      
+
         // Loop barang yang dibeli
         foreach ($request->barang_id as $i => $barang_id) {
           $jumlah = $request->jumlah[$i];
           $harga = $request->harga[$i];
-      
+
           // Ambil stok dan nama barang
           $barang = DB::table('m_barang')->where('barang_id', $barang_id)->first();
           $stokSekarang = DB::table('t_stok')->where('barang_id', $barang_id)->value('stok_jumlah');
-      
+
           if ($stokSekarang < $jumlah) {
             throw new \Exception("Stok barang '{$barang->barang_nama}' tidak mencukupi. Tersisa: $stokSekarang, Diminta: $jumlah");
           }
-      
+
           // Simpan detail penjualan
           PenjualanDetailModel::create([
             'penjualan_id' => $penjualan->penjualan_id,
@@ -259,27 +259,27 @@ class PenjualanController extends Controller
             'harga' => $harga,
             'jumlah' => $jumlah
           ]);
-      
+
           // Kurangi stok
           DB::table('t_stok')
             ->where('barang_id', $barang_id)
             ->decrement('stok_jumlah', $jumlah);
         }
-      
+
         DB::commit(); // <-- PENTING!
-      
+
         return response()->json([
           'status' => true,
           'message' => 'Data penjualan berhasil disimpan'
         ]);
       } catch (\Exception $e) {
         DB::rollBack();
-      
+
         return response()->json([
           'status' => false,
           'message' => 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage()
         ]);
-      }      
+      }
     }
 
     return redirect('/');
@@ -288,10 +288,11 @@ class PenjualanController extends Controller
   // Tampilkan form edit penjualan via AJAX
   public function edit_ajax(string $id)
   {
-    $penjualan = PenjualanModel::find($id);
+    $penjualan = PenjualanModel::with('detail')->find($id);
     $user = UserModel::all();
+    $barang = BarangModel::all();
 
-    return view('penjualan.edit_ajax', compact('penjualan', 'user'));
+    return view('penjualan.edit_ajax', compact('penjualan', 'user', 'barang'));
   }
 
   // Update data penjualan via AJAX
@@ -301,8 +302,9 @@ class PenjualanController extends Controller
       $rules = [
         'user_id' => 'required|integer',
         'pembeli' => 'required|string|max:255',
-        'penjualan_kode' => 'required|string|max:100',
-        'penjualan_tanggal' => 'required|date'
+        'penjualan_kode' => 'required|string',
+        'penjualan_tanggal' => 'required|date',
+        'detail' => 'required|array',  // Pastikan detail penjualan ada
       ];
 
       $validator = Validator::make($request->all(), $rules);

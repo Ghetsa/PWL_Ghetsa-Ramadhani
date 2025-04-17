@@ -127,14 +127,10 @@ class StokController extends Controller
 
     return DataTables::of($stok)
       ->addIndexColumn()
-      ->addColumn('aksi', function ($s) {
-        $btn = '<a href="' . url('/stok/' . $s->stok_id) . '" class="btn btn-info btn-sm">Detail</a> ';
-        $btn .= '<a href="' . url('/stok/' . $s->stok_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
-        $btn .= '<form class="d-inline-block" method="POST" action="' . url('/stok/' . $s->stok_id) . '">'
-          . csrf_field()
-          . method_field('DELETE')
-          . '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin ingin menghapus data ini?\');">Hapus</button>'
-          . '</form>';
+      ->addColumn('aksi', function ($stok) {
+        $btn = '<button onclick="modalAction(\'' . url('/stok/' . $stok->stok_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+        $btn .= '<button onclick="modalAction(\'' . url('/stok/' . $stok->stok_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+        $btn .= '<button onclick="modalAction(\'' . url('/stok/' . $stok->stok_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
         return $btn;
       })
       ->rawColumns(['aksi'])
@@ -310,12 +306,11 @@ class StokController extends Controller
   {
     if ($request->ajax() || $request->wantsJson()) {
       $rules = [
-        'stok_id' => 'required|integer',
         'barang_id' => 'required|integer',
         'user_id' => 'required|integer',
+        'supplier_id' => 'required|integer',
         'stok_tanggal' => 'required|date',
         'stok_jumlah' => 'required|integer|min:1',
-        'supplier_id' => 'required|integer',
       ];
 
       $validator = Validator::make($request->all(), $rules);

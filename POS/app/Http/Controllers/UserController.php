@@ -36,6 +36,38 @@ class UserController extends Controller
         return view('user.index', ['breadcrumb' => $breadcrumb, 'page' => $page, 'level' => $level, 'activeMenu' => $activeMenu]);
     }
 
+    // Praktikum 3 - Langkah 7
+    // Ambil data user dalam bentuk JSON untuk DataTables
+    // public function list(Request $request)
+    // {
+    //     $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
+    //         ->with('level');
+
+    //     // Filter data user berdasarkan level_id
+    //     if ($request->level_id) {
+    //         $users->where('level_id', $request->level_id);
+    //     }
+
+    //     return DataTables::of($users)
+    //         // Menambahkan kolom index / nomor urut (default nama kolom: DT_RowIndex)
+    //         ->addIndexColumn()
+    //         ->addColumn('aksi', function ($user) { // Menambahkan kolom aksi
+    //             $btn = '<a href="' . url('/user/' . $user->user_id) . '" class="btn btn-info btn-sm">Detail</a> ';
+    //             $btn .= '<a href="' . url('/user/' . $user->user_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
+    //             $btn .= '<form class="d-inline-block" method="POST" action="' . url('/user/' . $user->user_id) . '">'
+    //                 . csrf_field() . method_field('DELETE') .
+    //                 '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Apakah Anda yakin menghapus data ini?\')">Hapus</button></form>';
+    //             return $btn;
+    //         })
+    //         ->rawColumns(['aksi']) // Memberitahu bahwa kolom aksi berisi HTML
+    //         ->make(true);
+    // }
+
+
+
+
+
+
     // Praktikum 3 - Langkah 9
     // Menampilkan halaman form tambah user
     public function create()
@@ -75,9 +107,10 @@ class UserController extends Controller
         UserModel::create([
             'username' => $request->username,
             'nama' => $request->nama,
-            'password' => $request->password, // password dienkripsi sebelum disimpan
+            'password' => bcrypt($request->password), // Pastikan password di-hash
             'level_id' => $request->level_id
         ]);
+
 
         return redirect('/user')->with('success', 'Data user berhasil disimpan');
     }
@@ -129,7 +162,6 @@ class UserController extends Controller
         ]);
     }
 
-
     // Menyimpan perubahan data user
     public function update(Request $request, string $id)
     {
@@ -172,14 +204,17 @@ class UserController extends Controller
         }
     }
 
+
     // =============================================
     // JOBSHEET 6
     // =============================================
+    // Praktikum 1 - Langkah 7
     public function create_ajax()
     {
         $level = LevelModel::select('level_id', 'level_nama')->get();
-        return view('user.create_ajax', ['level' => $level]);
+        return view('user.create_ajax')->with('level', $level);
     }
+    // Praktikum 1 - Langkah 9
     public function store_ajax(Request $request)
     {
         // cek apakah request berupa ajax
@@ -191,17 +226,19 @@ class UserController extends Controller
                 'password' => 'required|min:6'
             ];
 
+
             $validator = Validator::make($request->all(), $rules);
 
             if ($validator->fails()) {
                 return response()->json([
                     'status' => false, // response status, false: error/gagal, true: berhasil
                     'message' => 'Validasi Gagal',
-                    'msgField' => $validator->errors(), // pesan error validasi
+                    'msgField' => $validator->errors() // pesan error validasi
                 ]);
             }
 
             UserModel::create($request->all());
+
             return response()->json([
                 'status' => true,
                 'message' => 'Data user berhasil disimpan'
@@ -211,7 +248,7 @@ class UserController extends Controller
         redirect('/');
     }
 
-    
+
     // Praktikum 2 - Langkah 2
     // Ambil data user dalam bentuk json untuk datatables
     public function list(Request $request)
@@ -262,7 +299,7 @@ class UserController extends Controller
                 'level_id' => 'required|integer',
                 'username' => 'required|max:20|unique:m_user,username,' . $id . ',user_id',
                 'nama' => 'required|max:100',
-                'password' => 'nullable|min:6|max:20'
+                'password' => 'nullable|min:5|max:20'
             ];
 
             // use Illuminate\Support\Facades\Validator;
