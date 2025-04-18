@@ -61,6 +61,7 @@
     @include('layouts.footer')
   </div>
   <!-- ./wrapper -->
+
   <!-- jQuery -->
   <script src="{{ asset('adminlte/plugins/jquery/jquery.min.js') }}"></script>
 
@@ -92,4 +93,5 @@
   </script>
   @stack('js') <!-- Digunakan untuk memanggil custom js dari perintah push('js') pada masing-masing view -->
 </body>
+
 </html>
