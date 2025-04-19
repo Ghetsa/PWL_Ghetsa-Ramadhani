@@ -14,6 +14,7 @@ use App\Http\Controllers\StokController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\PenjualanDetailController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,7 +41,10 @@ Route::post('register', [AuthController::class, 'postregister']);
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [WelcomeController::class, 'index']);
-
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+    
     // 1. Administrator (ADM): Bisa CRUD semua
     Route::middleware(['authorize:ADM'])->group(function () {
         $resources = ['level', 'user'];
