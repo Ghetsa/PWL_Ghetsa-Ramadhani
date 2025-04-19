@@ -5,8 +5,13 @@
         <div class="card-header">
             <h3 class="card-title">{{ $page->title }}</h3>
             <div class="card-tools">
-                <button onclick="modalAction('{{ url('/user/import') }}')" class="btn btn-info"><i class="fa fa-file-excel"></i> Import User</button>
-                <button onclick="modalAction('{{ url('/user/create_ajax') }}')" class="btn btn-success"><i class="fa fa-plus"></i> Tambah Data</button>
+                <button onclick="modalAction('{{ url('/user/import') }}')" class="btn btn-info"><i
+                        class="fa fa-file-excel"></i> Import User</button>
+                <a href="{{ url(path: '/user/export_excel') }}" class="btn btn-primary"><i
+                        class="fa fa-file-excel"></i>
+                    Export User</a>
+                <button onclick="modalAction('{{ url('/user/create_ajax') }}')" class="btn btn-success"><i
+                        class="fa fa-plus"></i> Tambah Data</button>
             </div>
         </div>
         <div class="card-body">

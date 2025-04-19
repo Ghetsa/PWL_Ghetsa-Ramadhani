@@ -455,7 +455,7 @@ class UserController extends Controller
         $sheet->setCellValue('E1', 'Nama');
         $sheet->setCellValue('F1', 'Password');
 
-        $sheet->getStyle('A1:D1')->getFont()->setBold(true); // bold header
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true); // bold header
 
         // Selanjutnya, kita looping data yang telah kita dapatkan dari database, kemudian kita masukkan ke dalam cell excel
         $no = 1;
@@ -473,7 +473,7 @@ class UserController extends Controller
 
 
         // Kita set lebar tiap kolom di excel untuk menyesuaikan dengan panjang karakter pada masing-masing kolom
-        foreach (range('A', 'D') as $columnID) {
+        foreach (range('A', 'F') as $columnID) {
             $sheet->getColumnDimension($columnID)->setAutoSize(true); // set auto size kolom
         }
 
