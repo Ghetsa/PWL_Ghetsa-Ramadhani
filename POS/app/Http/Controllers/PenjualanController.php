@@ -43,7 +43,7 @@ class PenjualanController extends Controller
       ->addIndexColumn()
       ->addColumn('aksi', function ($penjualan) {
         $btn = '<button onclick="modalAction(\'' . url('/penjualan/' . $penjualan->penjualan_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-        $btn .= '<button onclick="modalAction(\'' . url('/penjualan/' . $penjualan->penjualan_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+        $btn .= '<a href="' . url('/penjualan/' . $penjualan->penjualan_id . '/cetak_struk') . '" target="_blank" class="btn btn-warning btn-sm">Cetak Struk</a> ';
         $btn .= '<button onclick="modalAction(\'' . url('/penjualan/' . $penjualan->penjualan_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
         return $btn;
       })
@@ -610,6 +610,22 @@ class PenjualanController extends Controller
     $pdf->render();
 
     return $pdf->stream('Data Penjualan ' . date('Y-m-d H:i:s') . '.pdf');
+  }
+
+  public function cetak_struk($id)
+  {
+      $penjualan = PenjualanModel::with(['user', 'detail.barang'])->find($id);
+  
+      if (!$penjualan) {
+          return redirect('/penjualan')->with('error', 'Data penjualan tidak ditemukan.');
+      }
+  
+      $pdf = Pdf::loadView('penjualan.cetak_struk', compact('penjualan'));
+      $pdf->setPaper([0, 0, 226.77, 600], 'portrait'); // ukuran struk (mm ke point)
+      $pdf->setOption('isRemoteEnabled', true);
+      $pdf->render();
+
+      return $pdf->stream('Struk-' . $penjualan->penjualan_kode . '.pdf');
   }
 
 }

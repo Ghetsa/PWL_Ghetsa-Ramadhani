@@ -107,6 +107,7 @@ Route::middleware(['auth'])->group(function () {
 
     // 3. Staff & Kasir (STF, KSR): CRUD via AJAX, TIDAK BISA akses level/user
     Route::middleware(['authorize:ADM,MNG,STF,KSR'])->group(function () {
+        Route::get('/penjualan/{id}/cetak_struk', [PenjualanController::class, 'cetak_struk'])->name('penjualan.cetak_struk');
         $resources = ['barang', 'stok', 'penjualan']; 
 
         foreach ($resources as $resource) {
