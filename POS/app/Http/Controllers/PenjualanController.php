@@ -81,7 +81,11 @@ class PenjualanController extends Controller
       'harga' => 'required|array',
       'jumlah' => 'required|array',
     ]);
-
+    // Hitung total bayar
+    $total_bayar = 0;
+    foreach ($request->barang_id as $i => $barang_id) {
+      $total_bayar += $request->harga[$i] * $request->jumlah[$i];
+    }
     // Simpan data penjualan
     $penjualan = PenjualanModel::create($request->all());
 
@@ -421,6 +425,194 @@ class PenjualanController extends Controller
   // =============================================
   // JOBSHEET 8
   // =============================================
+  // =============================================
+// IMPORT
+// =============================================
+
+  public function import()
+  {
+    return view('penjualan.import');
+  }
+
+  public function import_ajax(Request $request)
+{
+    if ($request->ajax() || $request->wantsJson()) {
+        $rules = ['file_penjualan' => ['required', 'mimes:xlsx', 'max:5120']];
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validasi Gagal',
+                'msgField' => $validator->errors()
+            ]);
+        }
+
+        $file = $request->file('file_penjualan');
+        $reader = IOFactory::createReader('Xlsx');
+        $reader->setReadDataOnly(true);
+        $spreadsheet = $reader->load($file->getRealPath());
+        $sheet = $spreadsheet->getActiveSheet();
+        $data = $sheet->toArray(null, false, true, true);
+
+        if (count($data) <= 1) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Tidak ada data yang diimport'
+            ]);
+        }
+
+        DB::beginTransaction();
+        try {
+            $lastKode = '';
+            $penjualan = null;
+            $total_bayar = 0;
+
+            foreach ($data as $baris => $row) {
+                if ($baris <= 1) continue; // Skip header
+
+                $kode = $row['A']; // penjualan_kode
+                $tanggal = $row['B']; // penjualan_tanggal
+                $pembeli = $row['C']; // pembeli
+                $user_id = $row['D']; // user_id
+                $barang_id = $row['E'];
+                $harga = $row['F'];
+                $jumlah = $row['G'];
+
+                if ($lastKode != $kode) {
+                    // Simpan penjualan sebelumnya jika ada
+                    if ($penjualan) {
+                        $penjualan->total_bayar = $total_bayar;
+                        $penjualan->save();
+                        $total_bayar = 0;
+                    }
+
+                    // Buat baru
+                    $penjualan = PenjualanModel::create([
+                        'penjualan_kode' => $kode,
+                        'penjualan_tanggal' => $tanggal,
+                        'pembeli' => $pembeli,
+                        'user_id' => $user_id,
+                        'total_bayar' => 0
+                    ]);
+                    $lastKode = $kode;
+                }
+
+                $barang = DB::table('m_barang')->where('barang_id', $barang_id)->first();
+                $stok = DB::table('t_stok')->where('barang_id', $barang_id)->value('stok_jumlah');
+
+                if ($stok < $jumlah) {
+                    throw new \Exception("Stok barang '{$barang->barang_nama}' tidak mencukupi pada baris {$baris}.");
+                }
+
+                PenjualanDetailModel::create([
+                    'penjualan_id' => $penjualan->penjualan_id,
+                    'barang_id' => $barang_id,
+                    'harga' => $harga,
+                    'jumlah' => $jumlah
+                ]);
+
+                // Kurangi stok
+                DB::table('t_stok')
+                    ->where('barang_id', $barang_id)
+                    ->decrement('stok_jumlah', $jumlah);
+
+                $total_bayar += $harga * $jumlah;
+            }
+
+            // Simpan total bayar terakhir
+            if ($penjualan) {
+                $penjualan->total_bayar = $total_bayar;
+                $penjualan->save();
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Data penjualan berhasil diimport'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'status' => false,
+                'message' => 'Terjadi kesalahan saat import: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    return redirect('/');
+}
+  
+
+  public function export_excel()
+  {
+    $penjualan = PenjualanModel::with(['user', 'detail.barang'])
+      ->orderBy('penjualan_tanggal')
+      ->get();
+
+    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    $sheet->setCellValue('A1', 'No');
+    $sheet->setCellValue('B1', 'Kode Penjualan');
+    $sheet->setCellValue('C1', 'Tanggal');
+    $sheet->setCellValue('D1', 'Kasir');
+    $sheet->setCellValue('E1', 'Barang');
+    $sheet->setCellValue('F1', 'Harga');
+    $sheet->setCellValue('G1', 'Jumlah');
+    $sheet->setCellValue('H1', 'Subtotal');
+
+    $sheet->getStyle('A1:H1')->getFont()->setBold(true);
+
+    $baris = 2;
+    $no = 1;
+
+    foreach ($penjualan as $p) {
+      foreach ($p->detail as $d) {
+        $sheet->setCellValue('A' . $baris, $no++);
+        $sheet->setCellValue('B' . $baris, $p->penjualan_kode);
+        $sheet->setCellValue('C' . $baris, $p->penjualan_tanggal);
+        $sheet->setCellValue('D' . $baris, $p->user->nama ?? '-');
+        $sheet->setCellValue('E' . $baris, $d->barang->barang_nama ?? '-');
+        $sheet->setCellValue('F' . $baris, $d->harga);
+        $sheet->setCellValue('G' . $baris, $d->jumlah);
+        $sheet->setCellValue('H' . $baris, $d->harga * $d->jumlah);
+        $baris++;
+      }
+    }
+
+    foreach (range('A', 'H') as $columnID) {
+      $sheet->getColumnDimension($columnID)->setAutoSize(true);
+    }
+
+    $sheet->setTitle('Data Penjualan');
+
+    $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+    $filename = 'Data Penjualan ' . date('Y-m-d H-i-s') . '.xlsx';
+
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header("Content-Disposition: attachment;filename=\"$filename\"");
+    header('Cache-Control: max-age=0');
+    $writer->save('php://output');
+    exit;
+  }
+
+  public function export_pdf()
+  {
+    $penjualan = PenjualanModel::with(['user', 'detail.barang'])
+      ->orderBy('penjualan_tanggal')
+      ->get();
+
+    $pdf = Pdf::loadView('penjualan.export_pdf', ['penjualan' => $penjualan]);
+    $pdf->setPaper('a4', 'portrait');
+    $pdf->setOption('isRemoteEnabled', true);
+    $pdf->render();
+
+    return $pdf->stream('Data Penjualan ' . date('Y-m-d H:i:s') . '.pdf');
+  }
+
 }
 
 

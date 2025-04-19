@@ -5,9 +5,10 @@
     <div class="card-header">
     <h3 class="card-title">Manajemen Penjualan</h3>
     <div class="card-tools">
-      <a class="btn btn-sm btn-primary mt-1" href="{{ url('penjualan/create') }}">Tambah</a>
-      <button onclick="modalAction('{{ url('penjualan/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah
-      Ajax</button>
+      <button onclick="modalAction('{{ url('/penjualan/import') }}')" class="btn btn-info"><i
+        class="fa fa-file-excel"></i> Import Penjualan</button>
+      <button onclick="modalAction('{{ url('/penjualan/create_ajax') }}')" class="btn btn-success"><i
+        class="fa fa-plus"></i> Tambah Data</button>
     </div>
     </div>
 
@@ -36,7 +37,7 @@
     </table>
     </div>
   </div>
-    <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
+  <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
     data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
 
@@ -45,7 +46,7 @@
 
 @push('js')
   <script>
-  function modalAction(url = '') {
+    function modalAction(url = '') {
     $('#myModal').load(url, function () {
       $('#myModal').modal('show');
     });
@@ -53,7 +54,7 @@
 
     var dataPenjualan;
     $(document).ready(function () {
-     dataPenjualan = $('#table_penjualan').DataTable({
+    dataPenjualan = $('#table_penjualan').DataTable({
       processing: true,
       serverSide: true,
       ajax: {
