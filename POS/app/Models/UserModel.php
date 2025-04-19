@@ -2,24 +2,23 @@
 
 namespace App\Models;
 
+use App\Models\LevelModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable; // implementasi class Authenticatable
 
+
 class UserModel extends Authenticatable
 {
+    use HasFactory;
 
-   // ============================
-   // | JOBSHEET 4 - PRAKTIKUM 1 |
-   // ============================
-   use HasFactory;
+    protected $table = 'm_user';
+    protected $primaryKey = 'user_id';
+    protected $fillable = ['username', 'nama', 'password', 'level_id', 'created_at', 'updated_at'];
+    protected $hidden = ['password']; // jangan ditampilkan saat select
 
-   protected $table = 'm_user'; // mendifinisikan nama tabel yang digunakan oleh model ini
-   protected $primaryKey = 'user_id'; // mendefinisikan primary key dari tabel yang digunakan
-
-   protected $hidden = ['password'];
-   protected $casts = ['password' => 'hashed'];
+    protected $casts = ['password' => 'hashed']; //casting password agar otomatis di hash
 
     // --------------------------------------
     // Jobsheet 7 Praktikum 2 langkah 1
@@ -43,10 +42,11 @@ class UserModel extends Authenticatable
         return $this->level->level_kode == $role;
     }
 
-    
     // Mendapatkan kode role
     public function getRole()
     {
         return $this->level->level_kode;
     }
+
+
 }

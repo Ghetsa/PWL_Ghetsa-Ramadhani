@@ -226,7 +226,7 @@ class UserController extends Controller
                 'level_id' => 'required|integer',
                 'username' => 'required|string|min:3|unique:m_user,username',
                 'nama' => 'required|string|max:100',
-                'password' => 'required|min:6'
+                'password' => 'required|min:5'
             ];
 
 
