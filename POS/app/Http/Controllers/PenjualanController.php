@@ -435,116 +435,117 @@ class PenjualanController extends Controller
   }
 
   public function import_ajax(Request $request)
-{
+  {
     if ($request->ajax() || $request->wantsJson()) {
-        $rules = ['file_penjualan' => ['required', 'mimes:xlsx', 'max:5120']];
-        $validator = Validator::make($request->all(), $rules);
+      $rules = ['file_penjualan' => ['required', 'mimes:xlsx', 'max:5120']];
+      $validator = Validator::make($request->all(), $rules);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Validasi Gagal',
-                'msgField' => $validator->errors()
-            ]);
-        }
+      if ($validator->fails()) {
+        return response()->json([
+          'status' => false,
+          'message' => 'Validasi Gagal',
+          'msgField' => $validator->errors()
+        ]);
+      }
 
-        $file = $request->file('file_penjualan');
-        $reader = IOFactory::createReader('Xlsx');
-        $reader->setReadDataOnly(true);
-        $spreadsheet = $reader->load($file->getRealPath());
-        $sheet = $spreadsheet->getActiveSheet();
-        $data = $sheet->toArray(null, false, true, true);
+      $file = $request->file('file_penjualan');
+      $reader = IOFactory::createReader('Xlsx');
+      $reader->setReadDataOnly(true);
+      $spreadsheet = $reader->load($file->getRealPath());
+      $sheet = $spreadsheet->getActiveSheet();
+      $data = $sheet->toArray(null, false, true, true);
 
-        if (count($data) <= 1) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Tidak ada data yang diimport'
-            ]);
-        }
+      if (count($data) <= 1) {
+        return response()->json([
+          'status' => false,
+          'message' => 'Tidak ada data yang diimport'
+        ]);
+      }
 
-        DB::beginTransaction();
-        try {
-            $lastKode = '';
-            $penjualan = null;
-            $total_bayar = 0;
+      DB::beginTransaction();
+      try {
+        $lastKode = '';
+        $penjualan = null;
+        $total_bayar = 0;
 
-            foreach ($data as $baris => $row) {
-                if ($baris <= 1) continue; // Skip header
+        foreach ($data as $baris => $row) {
+          if ($baris <= 1)
+            continue; // Skip header
 
-                $kode = $row['A']; // penjualan_kode
-                $tanggal = $row['B']; // penjualan_tanggal
-                $pembeli = $row['C']; // pembeli
-                $user_id = $row['D']; // user_id
-                $barang_id = $row['E'];
-                $harga = $row['F'];
-                $jumlah = $row['G'];
+          $kode = $row['A']; // penjualan_kode
+          $tanggal = $row['B']; // penjualan_tanggal
+          $pembeli = $row['C']; // pembeli
+          $user_id = $row['D']; // user_id
+          $barang_id = $row['E'];
+          $harga = $row['F'];
+          $jumlah = $row['G'];
 
-                if ($lastKode != $kode) {
-                    // Simpan penjualan sebelumnya jika ada
-                    if ($penjualan) {
-                        $penjualan->total_bayar = $total_bayar;
-                        $penjualan->save();
-                        $total_bayar = 0;
-                    }
-
-                    // Buat baru
-                    $penjualan = PenjualanModel::create([
-                        'penjualan_kode' => $kode,
-                        'penjualan_tanggal' => $tanggal,
-                        'pembeli' => $pembeli,
-                        'user_id' => $user_id,
-                        'total_bayar' => 0
-                    ]);
-                    $lastKode = $kode;
-                }
-
-                $barang = DB::table('m_barang')->where('barang_id', $barang_id)->first();
-                $stok = DB::table('t_stok')->where('barang_id', $barang_id)->value('stok_jumlah');
-
-                if ($stok < $jumlah) {
-                    throw new \Exception("Stok barang '{$barang->barang_nama}' tidak mencukupi pada baris {$baris}.");
-                }
-
-                PenjualanDetailModel::create([
-                    'penjualan_id' => $penjualan->penjualan_id,
-                    'barang_id' => $barang_id,
-                    'harga' => $harga,
-                    'jumlah' => $jumlah
-                ]);
-
-                // Kurangi stok
-                DB::table('t_stok')
-                    ->where('barang_id', $barang_id)
-                    ->decrement('stok_jumlah', $jumlah);
-
-                $total_bayar += $harga * $jumlah;
-            }
-
-            // Simpan total bayar terakhir
+          if ($lastKode != $kode) {
+            // Simpan penjualan sebelumnya jika ada
             if ($penjualan) {
-                $penjualan->total_bayar = $total_bayar;
-                $penjualan->save();
+              $penjualan->total_bayar = $total_bayar;
+              $penjualan->save();
+              $total_bayar = 0;
             }
 
-            DB::commit();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'Data penjualan berhasil diimport'
+            // Buat baru
+            $penjualan = PenjualanModel::create([
+              'penjualan_kode' => $kode,
+              'penjualan_tanggal' => $tanggal,
+              'pembeli' => $pembeli,
+              'user_id' => $user_id,
+              'total_bayar' => 0
             ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
+            $lastKode = $kode;
+          }
 
-            return response()->json([
-                'status' => false,
-                'message' => 'Terjadi kesalahan saat import: ' . $e->getMessage()
-            ]);
+          $barang = DB::table('m_barang')->where('barang_id', $barang_id)->first();
+          $stok = DB::table('t_stok')->where('barang_id', $barang_id)->value('stok_jumlah');
+
+          if ($stok < $jumlah) {
+            throw new \Exception("Stok barang '{$barang->barang_nama}' tidak mencukupi pada baris {$baris}.");
+          }
+
+          PenjualanDetailModel::create([
+            'penjualan_id' => $penjualan->penjualan_id,
+            'barang_id' => $barang_id,
+            'harga' => $harga,
+            'jumlah' => $jumlah
+          ]);
+
+          // Kurangi stok
+          DB::table('t_stok')
+            ->where('barang_id', $barang_id)
+            ->decrement('stok_jumlah', $jumlah);
+
+          $total_bayar += $harga * $jumlah;
         }
+
+        // Simpan total bayar terakhir
+        if ($penjualan) {
+          $penjualan->total_bayar = $total_bayar;
+          $penjualan->save();
+        }
+
+        DB::commit();
+
+        return response()->json([
+          'status' => true,
+          'message' => 'Data penjualan berhasil diimport'
+        ]);
+      } catch (\Exception $e) {
+        DB::rollBack();
+
+        return response()->json([
+          'status' => false,
+          'message' => 'Terjadi kesalahan saat import: ' . $e->getMessage()
+        ]);
+      }
     }
 
     return redirect('/');
-}
-  
+  }
+
 
   public function export_excel()
   {
@@ -602,11 +603,11 @@ class PenjualanController extends Controller
   public function export_pdf()
   {
     $penjualan = PenjualanModel::with(['user', 'detail.barang'])
-      ->orderBy('penjualan_tanggal')
+      ->orderBy('penjualan_id', 'asc')
       ->get();
 
     $pdf = Pdf::loadView('penjualan.export_pdf', ['penjualan' => $penjualan]);
-    $pdf->setPaper('a4', 'portrait');
+    $pdf->setPaper('a4', 'landscape');
     $pdf->setOption('isRemoteEnabled', true);
     $pdf->render();
 

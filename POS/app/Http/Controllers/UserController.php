@@ -497,21 +497,17 @@ class UserController extends Controller
     } // end function export_excel
 
 
-
-
     // Tugas 3
     public function export_pdf()
     {
-        $user = UserModel::select('user_id', 'user_kode', 'user_nama')->orderBy('user_id')->get();
+        $user = UserModel::select('user_id', 'level_id', 'username', 'nama', 'password')->orderBy('level_id')->with('level')->get();
 
-
-        // use Barryvdh\\DomPDF\\Facade\\Pdf;
         $pdf = Pdf::loadView('user.export_pdf', ['user' => $user]);
         $pdf->setPaper('a4', 'portrait'); // set ukuran kertas dan orientasi
-        $pdf->setOption('isRemoteEnabled', true); // set true jika ada gambar dari url
+        $pdf->setOption("isRemoteEnabled", true); // set true jika ada gambar dari url
         $pdf->render();
 
-        return $pdf->stream('Data user ' . date('Y-m-d H:i:s') . '.pdf');
+        return $pdf->stream('Data User ' . date('Y-m-d H:i:s') . '.pdf');
     }
 
 
