@@ -29,7 +29,7 @@ use App\Http\Controllers\AuthController;
 // Jobsheet 7
 // ------------------------------------
 // Praktikum 1
-Route::pattern('id', '[0-9]+'); // artinya ketika ada parameter {id}, maka harus berupa angka
+Route::pattern('id', '[0-9]+');
 
 Route::get('login', [AuthController::class, 'login'])->name('login');
 Route::post('login', [AuthController::class, 'postlogin']);
@@ -38,18 +38,16 @@ Route::get('logout', [AuthController::class, 'logout'])->middleware('auth');
 Route::get('register', [AuthController::class, 'register'])->name('register');
 Route::post('register', [AuthController::class, 'postregister']);
 
-// Middleware untuk semua route harus login dulu
 Route::middleware(['auth'])->group(function () {
     Route::get('/', [WelcomeController::class, 'index']);
 
-    // 🔹 1. Administrator (ADM): Bisa CRUD semua data + AJAX CRUD
+    // 1. Administrator (ADM): Bisa CRUD semua
     Route::middleware(['authorize:ADM'])->group(function () {
-        $resources = ['level', 'barang', 'kategori', 'stok', 'supplier', 'user', 'penjualan'];
+        $resources = ['level', 'user'];
 
         foreach ($resources as $resource) {
             $controller = "App\\Http\\Controllers\\" . ucfirst($resource) . "Controller";
 
-            // 🔹 Standar CRUD
             Route::get("/$resource", [$controller, 'index']);
             Route::post("/$resource/list", [$controller, 'list']);
             Route::get("/$resource/create", [$controller, 'create']);
@@ -59,7 +57,6 @@ Route::middleware(['auth'])->group(function () {
             Route::put("/$resource/{id}", [$controller, 'update']);
             Route::delete("/$resource/{id}", [$controller, 'destroy']);
 
-            // 🔹 CRUD via AJAX
             Route::get("/$resource/create_ajax", [$controller, 'create_ajax']);
             Route::post("/$resource/ajax", [$controller, 'store_ajax']);
             Route::get("/$resource/{id}/edit_ajax", [$controller, 'edit_ajax']);
@@ -67,17 +64,21 @@ Route::middleware(['auth'])->group(function () {
             Route::get("/$resource/{id}/delete_ajax", [$controller, 'confirm_ajax']);
             Route::delete("/$resource/{id}/delete_ajax", [$controller, 'delete_ajax']);
             Route::get("/$resource/{id}/show_ajax", [$controller, 'show_ajax']);
+
+            Route::get("/$resource/import", [$controller, 'import']);
+            Route::post("/$resource/import_ajax", [$controller, 'import_ajax']);
+            Route::get("/$resource/export_excel", [$controller, 'export_excel']);
+            Route::get("/$resource/export_pdf", [$controller, 'export_pdf']);
         }
     });
 
-    // 🔹 2. Manager (MNG): Bisa CRUD Barang, Kategori, Stok, Supplier, Penjualan via AJAX
+    // 2. Manager (ADM, MNG): CRUD tanpa level & user
     Route::middleware(['authorize:ADM,MNG'])->group(function () {
-        $resources = ['barang', 'kategori', 'stok', 'supplier', 'penjualan'];
+        $resources = ['kategori', 'supplier'];
 
         foreach ($resources as $resource) {
             $controller = "App\\Http\\Controllers\\" . ucfirst($resource) . "Controller";
 
-            // 🔹 Standar CRUD
             Route::get("/$resource", [$controller, 'index']);
             Route::post("/$resource/list", [$controller, 'list']);
             Route::get("/$resource/create", [$controller, 'create']);
@@ -85,7 +86,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get("/$resource/{id}", [$controller, 'show']);
             Route::delete("/$resource/{id}", [$controller, 'destroy']);
 
-            // 🔹 CRUD via AJAX
             Route::get("/$resource/create_ajax", [$controller, 'create_ajax']);
             Route::post("/$resource/ajax", [$controller, 'store_ajax']);
             Route::get("/$resource/{id}/edit_ajax", [$controller, 'edit_ajax']);
@@ -93,23 +93,26 @@ Route::middleware(['auth'])->group(function () {
             Route::get("/$resource/{id}/delete_ajax", [$controller, 'confirm_ajax']);
             Route::delete("/$resource/{id}/delete_ajax", [$controller, 'delete_ajax']);
             Route::get("/$resource/{id}/show_ajax", [$controller, 'show_ajax']);
+
+            Route::get("/$resource/import", [$controller, 'import']);
+            Route::post("/$resource/import_ajax", [$controller, 'import_ajax']);
+            Route::get("/$resource/export_excel", [$controller, 'export_excel']);
+            Route::get("/$resource/export_pdf", [$controller, 'export_pdf']);
         }
     });
 
-    // 🔹 3. Staff & Kasir (STF, KSR): Bisa CRUD Barang, Stok, Penjualan via AJAX
+    // 3. Staff & Kasir (STF, KSR): CRUD via AJAX, TIDAK BISA akses level/user
     Route::middleware(['authorize:ADM,MNG,STF,KSR'])->group(function () {
-        $resources = ['barang', 'stok', 'penjualan'];
+        $resources = ['barang', 'stok', 'penjualan']; 
 
         foreach ($resources as $resource) {
             $controller = "App\\Http\\Controllers\\" . ucfirst($resource) . "Controller";
 
-            // 🔹 Standar CRUD
             Route::get("/$resource", [$controller, 'index']);
             Route::post("/$resource/list", [$controller, 'list']);
             Route::get("/$resource/create", [$controller, 'create']);
             Route::post("/$resource", [$controller, 'store']);
 
-            // 🔹 CRUD via AJAX
             Route::get("/$resource/create_ajax", [$controller, 'create_ajax']);
             Route::post("/$resource/ajax", [$controller, 'store_ajax']);
             Route::get("/$resource/{id}/edit_ajax", [$controller, 'edit_ajax']);
@@ -117,24 +120,15 @@ Route::middleware(['auth'])->group(function () {
             Route::get("/$resource/{id}/delete_ajax", [$controller, 'confirm_ajax']);
             Route::delete("/$resource/{id}/delete_ajax", [$controller, 'delete_ajax']);
             Route::get("/$resource/{id}/show_ajax", [$controller, 'show_ajax']);
-        }
-    });
 
-    // 🔹 4. Owner (OWN): Hanya bisa melihat data tanpa bisa CRUD
-    Route::middleware(['authorize:ADM,MNG,STF,KSR,OWN'])->group(function () {
-        $resources = ['level', 'barang', 'kategori', 'stok', 'supplier', 'user', 'penjualan'];
-
-        foreach ($resources as $resource) {
-            $controller = "App\\Http\\Controllers\\" . ucfirst($resource) . "Controller";
-
-            // 🔹 Hanya bisa melihat data
-            Route::get("/$resource", [$controller, 'index']);
-            Route::post("/$resource/list", [$controller, 'list']);
-            Route::get("/$resource/{id}", [$controller, 'show']);
-            Route::get("/$resource/{id}/show_ajax", [$controller, 'show_ajax']);
+            Route::get("/$resource/import", [$controller, 'import']);
+            Route::post("/$resource/import_ajax", [$controller, 'import_ajax']);
+            Route::get("/$resource/export_excel", [$controller, 'export_excel']);
+            Route::get("/$resource/export_pdf", [$controller, 'export_pdf']);
         }
     });
 });
+
 
 // // Praktikum 2 - Langkah 5
 // Route::get('/', [WelcomeController::class, 'index']);

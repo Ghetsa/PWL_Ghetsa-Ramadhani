@@ -11,6 +11,8 @@ use App\Models\UserModel;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class PenjualanController extends Controller
@@ -137,29 +139,29 @@ class PenjualanController extends Controller
   }
 
   public function update(Request $request, $id)
-{
+  {
     $request->validate([
-        'user_id' => 'required|integer',
-        'penjualan_kode' => 'required|string',
-        'penjualan_tanggal' => 'required|date',
-        'barang_id' => 'required|array',
-        'harga' => 'required|array',
-        'jumlah' => 'required|array',
+      'user_id' => 'required|integer',
+      'penjualan_kode' => 'required|string',
+      'penjualan_tanggal' => 'required|date',
+      'barang_id' => 'required|array',
+      'harga' => 'required|array',
+      'jumlah' => 'required|array',
     ]);
 
     // Hitung total bayar
     $total_bayar = 0;
     foreach ($request->barang_id as $i => $barang_id) {
-        $total_bayar += $request->harga[$i] * $request->jumlah[$i];
+      $total_bayar += $request->harga[$i] * $request->jumlah[$i];
     }
 
     // Update data utama
     $penjualan = PenjualanModel::find($id);
     $penjualan->update([
-        'user_id' => $request->user_id,
-        'penjualan_kode' => $request->penjualan_kode,
-        'penjualan_tanggal' => $request->penjualan_tanggal,
-        'total_bayar' => $total_bayar,
+      'user_id' => $request->user_id,
+      'penjualan_kode' => $request->penjualan_kode,
+      'penjualan_tanggal' => $request->penjualan_tanggal,
+      'total_bayar' => $total_bayar,
     ]);
 
     // Hapus semua detail lama
@@ -167,16 +169,16 @@ class PenjualanController extends Controller
 
     // Simpan detail baru
     foreach ($request->barang_id as $i => $barang_id) {
-        PenjualanDetailModel::create([
-            'penjualan_id' => $id,
-            'barang_id' => $barang_id,
-            'harga' => $request->harga[$i],
-            'jumlah' => $request->jumlah[$i]
-        ]);
+      PenjualanDetailModel::create([
+        'penjualan_id' => $id,
+        'barang_id' => $barang_id,
+        'harga' => $request->harga[$i],
+        'jumlah' => $request->jumlah[$i]
+      ]);
     }
 
     return redirect('/penjualan')->with('success', 'Data penjualan berhasil diubah');
-}
+  }
 
 
   public function destroy($id)
@@ -310,9 +312,9 @@ class PenjualanController extends Controller
         'harga' => 'required|array',
         'jumlah' => 'required|array',
       ];
-  
+
       $validator = Validator::make($request->all(), $rules);
-  
+
       if ($validator->fails()) {
         return response()->json([
           'status' => false,
@@ -320,24 +322,24 @@ class PenjualanController extends Controller
           'msgField' => $validator->errors()
         ]);
       }
-  
+
       DB::beginTransaction();
       try {
         $penjualan = PenjualanModel::find($id);
-  
+
         if (!$penjualan) {
           return response()->json([
             'status' => false,
             'message' => 'Data penjualan tidak ditemukan.'
           ]);
         }
-  
+
         // Hitung ulang total bayar
         $total_bayar = 0;
         foreach ($request->barang_id as $i => $barang_id) {
           $total_bayar += $request->harga[$i] * $request->jumlah[$i];
         }
-  
+
         // Update data utama
         $penjualan->update([
           'user_id' => $request->user_id,
@@ -346,10 +348,10 @@ class PenjualanController extends Controller
           'penjualan_tanggal' => $request->penjualan_tanggal,
           'total_bayar' => $total_bayar
         ]);
-  
+
         // Hapus detail lama
         PenjualanDetailModel::where('penjualan_id', $penjualan->penjualan_id)->delete();
-  
+
         // Simpan detail baru
         foreach ($request->barang_id as $i => $barang_id) {
           PenjualanDetailModel::create([
@@ -359,7 +361,7 @@ class PenjualanController extends Controller
             'jumlah' => $request->jumlah[$i]
           ]);
         }
-  
+
         DB::commit();
         return response()->json([
           'status' => true,
@@ -373,10 +375,10 @@ class PenjualanController extends Controller
         ]);
       }
     }
-  
+
     return redirect('/');
   }
-  
+
 
   // Konfirmasi hapus data penjualan (opsional: untuk modal AJAX)
   public function confirm_ajax(string $id)
@@ -410,11 +412,29 @@ class PenjualanController extends Controller
 
   public function show_ajax($id)
   {
-      $penjualan = PenjualanModel::find($id);
+    $penjualan = PenjualanModel::find($id);
 
-      return view('penjualan.show_ajax', compact('penjualan'));
+    return view('penjualan.show_ajax', compact('penjualan'));
   }
+
+
+  // =============================================
+  // JOBSHEET 8
+  // =============================================
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 // public function index()
 // {
 // ============================

@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\BarangModel;
 use App\Models\KategoriModel;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Yajra\DataTables\Facades\DataTables;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class BarangController extends Controller
 {
 
-  // =============================================
+    // =============================================
     // JOBSHEET 5 - TUGAS
     // =============================================
 
@@ -133,18 +135,18 @@ class BarangController extends Controller
     public function destroy($id)
     {
         $barang = BarangModel::find($id);
-    
+
         if (!$barang) {
             return redirect('/barang')->with('error', 'Data barang tidak ditemukan');
         }
-    
+
         try {
             // Hapus semua data yang terkait dengan barang ini
             \DB::table('t_penjualan_detail')->where('barang_id', $id)->delete();
-    
+
             // Setelah data terkait dihapus, hapus barang utama
             $barang->delete();
-    
+
             return redirect('/barang')->with('success', 'Data barang berhasil dihapus');
         } catch (\Exception $e) {
             return redirect('/barang')->with('error', 'Gagal menghapus barang: ' . $e->getMessage());
@@ -296,104 +298,242 @@ class BarangController extends Controller
                 $barang->delete();
 
                 return response()->json([
-                    'status'  => true,
+                    'status' => true,
                     'message' => 'Data barang berhasil dihapus.',
                 ]);
             }
 
             return response()->json([
-                'status'  => false,
+                'status' => false,
                 'message' => 'Data tidak ditemukan.',
             ]);
         }
 
         return redirect('/');
     }
+
+    // =============================================
+    // JOBSHEET 8
+    // =============================================
+    public function import()
+    {
+        return view('barang.import');
+    }
+    public function import_ajax(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = ['file_barang' => ['required', 'mimes:xlsx', 'max:1024']];
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Validasi Gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            $file = $request->file('file_barang');
+            $reader = IOFactory::createReader('Xlsx');
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($file->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+            $data = $sheet->toArray(null, false, true, true);
+            $insert = [];
+
+            if (count($data) > 1) {
+                foreach ($data as $baris => $value) {
+                    if ($baris > 1) {
+                        $insert[] = [
+                            'kategori_id' => $value['A'],
+                            'barang_kode' => $value['B'],
+                            'barang_nama' => $value['C'],
+                            'harga_beli' => $value['D'],
+                            'harga_jual' => $value['E'],
+                            'created_at' => now()
+                        ];
+                    }
+                }
+                if (count($insert) > 0) {
+                    BarangModel::insertOrIgnore($insert);
+                }
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Data berhasil diimport'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Tidak ada data yang diimport'
+                ]);
+            }
+        }
+
+        return redirect('/');
+    }
+    public function export_excel()
+    {
+        // ambil data barang yang akan di export
+        $barang = BarangModel::select('kategori_id', 'barang_kode', 'barang_nama', 'harga_beli', 'harga_jual')
+            ->orderBy('kategori_id')
+            ->with('kategori')
+            ->get();
+
+        // load library excel
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet(); // ambil sheet yang aktif
+
+        $sheet->setCellValue('A1', 'No');
+        $sheet->setCellValue('B1', 'Kode Barang');
+        $sheet->setCellValue('C1', 'Nama Barang');
+        $sheet->setCellValue('D1', 'Harga Beli');
+        $sheet->setCellValue('E1', 'Harga Jual');
+        $sheet->setCellValue('F1', 'Kategori');
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true); // bold header
+
+        // isi data ke dalam excel
+        $no = 1; // nomor data dimulai dari 1
+        $baris = 2; // baris data dimulai dari baris ke 2
+        foreach ($barang as $key => $value) {
+            $sheet->setCellValue('A' . $baris, $no);
+            $sheet->setCellValue('B' . $baris, $value->barang_kode);
+            $sheet->setCellValue('C' . $baris, $value->barang_nama);
+            $sheet->setCellValue('D' . $baris, $value->harga_beli);
+            $sheet->setCellValue('E' . $baris, $value->harga_jual);
+            $sheet->setCellValue('F' . $baris, $value->kategori->kategori_nama); // ambil nama kategori
+            $baris++;
+            $no++;
+        }
+
+        // set auto size untuk setiap kolom
+        foreach (range('A', 'F') as $columnID) {
+            $sheet->getColumnDimension($columnID)->setAutoSize(true);
+        }
+
+        $sheet->setTitle('Data Barang'); // set title sheet
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $filename = 'Data Barang ' . date('Y-m-d H:i:s') . '.xlsx';
+
+        // header untuk download file excel
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
+
+        $writer->save('php://output');
+        exit;
+    } // end function export_excel
+
+
+    public function export_pdf()
+    {
+        $barang = BarangModel::select('kategori_id', 'barang_kode', 'barang_nama', 'harga_beli', 'harga_jual')
+            ->orderBy('kategori_id')
+            ->orderBy('barang_kode')
+            ->with('kategori')
+            ->get();
+
+        // use Barryvdh\\DomPDF\\Facade\\Pdf;
+        $pdf = Pdf::loadView('barang.export_pdf', ['barang' => $barang]);
+        $pdf->setPaper('a4', 'portrait'); // set ukuran kertas dan orientasi
+        $pdf->setOption('isRemoteEnabled', true); // set true jika ada gambar dari url
+        $pdf->render();
+
+        return $pdf->stream('Data Barang ' . date('Y-m-d H:i:s') . '.pdf');
+    }
+
+
+
 }
 
-  // public function index()
-  // {
-  // ============================
-  // | JOBSHEET 3 - PRAKTIKUM 4 |
-  // ============================
-  // DB::insert('insert into m_barang(kategori_id, barang_kode, barang_nama, harga_jual, harga_beli, created_at) values(?, ?, ?, ?, ?, ?)', [1, 'BABY003', 'Dot Bayi', 15000, 10000, now()]);
-  // return 'Insert data baru berhasil';
+// public function index()
+// {
+// ============================
+// | JOBSHEET 3 - PRAKTIKUM 4 |
+// ============================
+// DB::insert('insert into m_barang(kategori_id, barang_kode, barang_nama, harga_jual, harga_beli, created_at) values(?, ?, ?, ?, ?, ?)', [1, 'BABY003', 'Dot Bayi', 15000, 10000, now()]);
+// return 'Insert data baru berhasil';
 
-  // $row = DB::update('update m_barang set harga_jual = ? where barang_kode = ?', [17000, 'BABY003']);
-  // return 'Update data berhasil, jumlah data yang diupdate: '.$row. ' baris';
+// $row = DB::update('update m_barang set harga_jual = ? where barang_kode = ?', [17000, 'BABY003']);
+// return 'Update data berhasil, jumlah data yang diupdate: '.$row. ' baris';
 
-  // $row = DB::delete('delete from m_barang where barang_kode = ?', ['BABY003']);
-  // return 'Delete data berhasil, jumlah data yang dihapus: '.$row. ' baris';
+// $row = DB::delete('delete from m_barang where barang_kode = ?', ['BABY003']);
+// return 'Delete data berhasil, jumlah data yang dihapus: '.$row. ' baris';
 
-  // $data = DB::select('select * from m_barang');
-  // return view('barang', ['data' => $data]);
+// $data = DB::select('select * from m_barang');
+// return view('barang', ['data' => $data]);
 
 
-  // ============================
-  // | JOBSHEET 4 - PRAKTIKUM 1 |
-  // ============================
-  //   $data = [
-  //     'kategori_id' => 5,
-  //     'barang_kode' => 'ELECT003',
-  //     'barang_nama' => 'Laptop ASUS',
-  //     'harga_beli' => 5000000,
-  //     'harga_jual' => 6500000
-  // ];
-  // BarangModel::insert($data);
+// ============================
+// | JOBSHEET 4 - PRAKTIKUM 1 |
+// ============================
+//   $data = [
+//     'kategori_id' => 5,
+//     'barang_kode' => 'ELECT003',
+//     'barang_nama' => 'Laptop ASUS',
+//     'harga_beli' => 5000000,
+//     'harga_jual' => 6500000
+// ];
+// BarangModel::insert($data);
 
-  // $barang = BarangModel::all();
-  // return view('barang', ['data' => $barang]);
+// $barang = BarangModel::all();
+// return view('barang', ['data' => $barang]);
 
-  // }
-  // public function index()
-  // {
-  //   $barang = BarangModel::all(); // ambil semua data dari tabel t_barang
-  //   return view('barang', ['data' => $barang]);
-  // }
+// }
+// public function index()
+// {
+//   $barang = BarangModel::all(); // ambil semua data dari tabel t_barang
+//   return view('barang', ['data' => $barang]);
+// }
 
-  // public function tambah()
-  // {
-  //   return view('barang_tambah');
-  // }
+// public function tambah()
+// {
+//   return view('barang_tambah');
+// }
 
-  // public function tambah_simpan(Request $request)
-  // {
-  //   BarangModel::create([
-  //     'kategori_id' => $request->kategori_id,
-  //     'barang_kode' => $request->barang_kode,
-  //     'barang_nama' => $request->barang_nama,
-  //     'harga_beli' => $request->harga_beli,
-  //     'harga_jual' => $request->harga_jual
-  //   ]);
+// public function tambah_simpan(Request $request)
+// {
+//   BarangModel::create([
+//     'kategori_id' => $request->kategori_id,
+//     'barang_kode' => $request->barang_kode,
+//     'barang_nama' => $request->barang_nama,
+//     'harga_beli' => $request->harga_beli,
+//     'harga_jual' => $request->harga_jual
+//   ]);
 
-  //   return redirect('/barang');
-  // }
+//   return redirect('/barang');
+// }
 
-  // public function ubah($id)
-  // {
-  //   $barang = BarangModel::find($id);
-  //   return view('barang_ubah', ['data' => $barang]);
-  // }
+// public function ubah($id)
+// {
+//   $barang = BarangModel::find($id);
+//   return view('barang_ubah', ['data' => $barang]);
+// }
 
-  // public function ubah_simpan($id, Request $request)
-  // {
-  //   $barang = BarangModel::find($id);
+// public function ubah_simpan($id, Request $request)
+// {
+//   $barang = BarangModel::find($id);
 
-  //   $barang->kategori_id = $request->kategori_id;
-  //   $barang->barang_kode = $request->barang_kode;
-  //   $barang->barang_nama = $request->barang_nama;
-  //   $barang->harga_beli = $request->harga_beli;
-  //   $barang->harga_jual = $request->harga_jual;
+//   $barang->kategori_id = $request->kategori_id;
+//   $barang->barang_kode = $request->barang_kode;
+//   $barang->barang_nama = $request->barang_nama;
+//   $barang->harga_beli = $request->harga_beli;
+//   $barang->harga_jual = $request->harga_jual;
 
-  //   $barang->save();
+//   $barang->save();
 
-  //   return redirect('/barang');
-  // }
+//   return redirect('/barang');
+// }
 
-  // public function hapus($id)
-  // {
-  //   $barang = BarangModel::find($id);
-  //   $barang->delete();
+// public function hapus($id)
+// {
+//   $barang = BarangModel::find($id);
+//   $barang->delete();
 
-  //   return redirect('/barang');
-  // }
+//   return redirect('/barang');
+// }

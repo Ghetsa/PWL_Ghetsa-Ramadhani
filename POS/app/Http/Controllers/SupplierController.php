@@ -6,6 +6,8 @@ use App\Models\SupplierModel;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SupplierController extends Controller
 {
@@ -290,11 +292,152 @@ class SupplierController extends Controller
 
   public function show_ajax($id)
   {
-      $supplier = SupplierModel::find($id);
+    $supplier = SupplierModel::find($id);
 
-      return view('supplier.show_ajax', compact('supplier'));
+    return view('supplier.show_ajax', compact('supplier'));
   }
+
+
+  // =============================================
+  // JOBSHEET 8
+  // =============================================
+  public function import()
+  {
+      return view('supplier.import');
+  }
+  public function import_ajax(Request $request)
+  {
+      if ($request->ajax() || $request->wantsJson()) {
+          $rules = ['file_supplier' => ['required', 'mimes:xlsx', 'max:5120']];
+          $validator = Validator::make($request->all(), $rules);
+
+          if ($validator->fails()) {
+              return response()->json([
+                  'status' => false,
+                  'message' => 'Validasi Gagal',
+                  'msgField' => $validator->errors()
+              ]);
+          }
+
+          $file = $request->file('file_supplier');
+          $reader = IOFactory::createReader('Xlsx');
+          $reader->setReadDataOnly(true);
+          $spreadsheet = $reader->load($file->getRealPath());
+          $sheet = $spreadsheet->getActiveSheet();
+          $data = $sheet->toArray(null, false, true, true);
+          $insert = [];
+
+          if (count($data) > 1) {
+              foreach ($data as $baris => $value) {
+                  if ($baris > 1) {
+                      $insert[] = [
+                          'supplier_kode' => $value['A'],
+                          'supplier_nama' => $value['B'],
+                          'supplier_alamat' => $value['C'],
+                          'created_at' => now()
+                      ];
+                  }
+              }
+              if (count($insert) > 0) {
+                  SupplierModel::insertOrIgnore($insert);
+              }
+              return response()->json([
+                  'status' => true,
+                  'message' => 'Data berhasil diimport'
+              ]);
+          } else {
+              return response()->json([
+                  'status' => false,
+                  'message' => 'Tidak ada data yang diimport'
+              ]);
+          }
+      }
+
+      return redirect('/');
+  }
+
+
+  
+  // Tugas 2
+  public function export_excel()
+  {
+      // ambil data barang yang akan di export
+      $supplier = SupplierModel::select('supplier_id', 'supplier_kode', 'supplier_nama', 'supplier_alamat')->orderBy('supplier_id')->get();
+
+      // load library excel
+      // Kemudian kita load library Spreadsheet dan kita tentukan header data pada baris pertama di excel
+      $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+      $sheet = $spreadsheet->getActiveSheet(); // ambil yang active
+
+      $sheet->setCellValue('A1', 'No');
+      $sheet->setCellValue('B1', 'ID supplier');
+      $sheet->setCellValue('C1', 'Kode supplier');
+      $sheet->setCellValue('D1', 'Nama supplier');
+      $sheet->setCellValue('E1', 'Alamat supplier');
+
+      $sheet->getStyle('A1:E1')->getFont()->setBold(true); // bold header
+
+      // Selanjutnya, kita looping data yang telah kita dapatkan dari database, kemudian kita masukkan ke dalam cell excel
+      $no = 1;
+      $baris = 2;
+      foreach ($supplier as $key => $value) {
+          $sheet->setCellValue('A' . $baris, $no);
+          $sheet->setCellValue('B' . $baris, $value->supplier_id);
+          $sheet->setCellValue('C' . $baris, $value->supplier_kode);
+          $sheet->setCellValue('D' . $baris, $value->supplier_nama);
+          $sheet->setCellValue('E' . $baris, $value->supplier_alamat);
+          $baris++;
+          $no++;
+      }
+
+      // Kita set lebar tiap kolom di excel untuk menyesuaikan dengan panjang karakter pada masing-masing kolom
+      foreach (range('A', 'E') as $columnID) {
+          $sheet->getColumnDimension($columnID)->setAutoSize(true); // set auto size kolom
+      }
+
+      // Bagian akhir proses export excel adalah kita set nama sheet, dan proses untuk dapat di download oleh pengguna
+      $sheet->setTitle('Data supplier'); // set title sheet
+
+      $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+      $filename = 'Data Supplier ' . date('Y-m-d H:i:s') . '.xlsx';
+
+      header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      header('Content-Disposition: attachment;filename="' . $filename . '"');
+      header('Cache-Control: max-age=0');
+      header('Cache-Control: max-age=1');
+      header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+      header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+      header('Cache-Control: cache, must-revalidate');
+      header('Pragma: public');
+
+      $writer->save('php://output');
+      exit;
+  } // end function export_excel
+
+
+
+
+  // Tugas 3
+  public function export_pdf()
+  {
+      $supplier = SupplierModel::select('supplier_id', 'supplier_kode', 'supplier_nama', 'supplier_alamat')->orderBy('supplier_id')->get();
+
+
+      // use Barryvdh\\DomPDF\\Facade\\Pdf;
+      $pdf = Pdf::loadView('supplier.export_pdf', ['supplier' => $supplier]);
+      $pdf->setPaper('a4', 'portrait'); // set ukuran kertas dan orientasi
+      $pdf->setOption('isRemoteEnabled', true); // set true jika ada gambar dari url
+      $pdf->render();
+
+      return $pdf->stream('Data Supplier ' . date('Y-m-d H:i:s') . '.pdf');
+  }
+
 }
+
+
+
+
+
 
 // public function index()
 // {

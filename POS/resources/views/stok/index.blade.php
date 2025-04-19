@@ -5,9 +5,8 @@
     <div class="card-header">
     <h3 class="card-title">Manajemen Stok</h3>
     <div class="card-tools">
-      <a class="btn btn-sm btn-primary mt-1" href="{{ url('stok/create') }}">Tambah</a>
-      <button onclick="modalAction('{{ url('stok/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah
-      Ajax</button>
+      <button onclick="modalAction('{{ url('/stok/import') }}')" class="btn btn-info"><i class="fa fa-file-excel"></i> Import Stok</button>
+      <button onclick="modalAction('{{ url('/stok/create_ajax') }}')" class="btn btn-success"><i class="fa fa-plus"></i> Tambah Data</button>
     </div>
     </div>
 
