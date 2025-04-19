@@ -10,12 +10,8 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label>Pengguna</label>
-                    <select name="user_id" class="form-control" required>
-                        <option value="">- Pilih Pengguna -</option>
-                        @foreach ($user as $u)
-                            <option value="{{ $u->user_id }}">{{ $u->nama }}</option>
-                        @endforeach
-                    </select>
+                    <input type="text" class="form-control" value="{{ auth()->user()->nama }}" disabled>
+                    <input type="hidden" name="user_id" value="{{ auth()->user()->user_id }}">
                     <small id="error-user_id" class="error-text text-danger"></small>
                 </div>
 
