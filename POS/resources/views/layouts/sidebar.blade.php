@@ -38,15 +38,28 @@
                 </li>
             @endif
 
+            {{-- Untuk ADM & MNG --}}
+            @if(in_array(auth()->user()->level->level_kode, ['ADM', 'MNG']))
+                <li class="nav-header">Data Supplier</li>
+                <li class="nav-item">
+                    <a href="{{ url('/supplier') }}" class="nav-link {{ ($activeMenu == 'supplier') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-truck"></i>
+                        <p>Supplier</p>
+                    </a>
+                </li>
+            @endif
+
             {{-- Untuk Semua (ADM, MNG, STF, KSR) --}}
             @if(in_array(auth()->user()->level->level_kode, ['ADM', 'MNG', 'STF', 'KSR']))
                 <li class="nav-header">Data Barang</li>
-                <li class="nav-item">
-                    <a href="{{ url('/kategori') }}" class="nav-link {{ ($activeMenu == 'kategori') ? 'active' : '' }}">
-                        <i class="nav-icon far fa-bookmark"></i>
-                        <p>Kategori Barang</p>
-                    </a>
-                </li>
+                @if(in_array(auth()->user()->level->level_kode, ['ADM', 'MNG']))
+                    <li class="nav-item">
+                        <a href="{{ url('/kategori') }}" class="nav-link {{ ($activeMenu == 'kategori') ? 'active' : '' }}">
+                            <i class="nav-icon far fa-bookmark"></i>
+                            <p>Kategori Barang</p>
+                        </a>
+                    </li>
+                @endif
                 <li class="nav-item">
                     <a href="{{ url('/barang') }}" class="nav-link {{ ($activeMenu == 'barang') ? 'active' : '' }}">
                         <i class="nav-icon far fa-list-alt"></i>
@@ -64,17 +77,6 @@
                     <a href="{{ url('/penjualan') }}" class="nav-link {{ ($activeMenu == 'penjualan') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-cash-register"></i>
                         <p>Transaksi Penjualan</p>
-                    </a>
-                </li>
-            @endif
-
-            {{-- Untuk ADM & MNG --}}
-            @if(in_array(auth()->user()->level->level_kode, ['ADM', 'MNG']))
-                <li class="nav-header">Data Supplier</li>
-                <li class="nav-item">
-                    <a href="{{ url('/supplier') }}" class="nav-link {{ ($activeMenu == 'supplier') ? 'active' : '' }}">
-                        <i class="nav-icon fas fa-truck"></i>
-                        <p>Supplier</p>
                     </a>
                 </li>
             @endif
