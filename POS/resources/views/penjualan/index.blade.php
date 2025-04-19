@@ -30,11 +30,11 @@
     <table class="table table-bordered table-striped table-hover table-sm" id="table_penjualan">
       <thead>
       <tr>
-        <th>ID</th>
-        <th>Kode</th>
-        <th>Tanggal</th>
-        <th>Pengguna</th>
-        <th>Aksi</th>
+        <th class="text-center">ID</th>
+        <th class="text-center">Kode</th>
+        <th class="text-center">Tanggal</th>
+        <th class="text-center">Pengguna</th>
+        <th class="text-center">Aksi</th>
       </tr>
       </thead>
     </table>

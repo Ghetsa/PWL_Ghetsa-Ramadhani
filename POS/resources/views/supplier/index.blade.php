@@ -23,11 +23,11 @@
       <table class="table table-bordered table-striped table-hover table-sm" id="table_supplier">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Kode Supplier</th>
-            <th>Nama Supplier</th>
-            <th>Alamat</th>
-            <th>Aksi</th>
+            <th class="text-center">ID</th>
+            <th class="text-center">Kode Supplier</th>
+            <th class="text-center">Nama Supplier</th>
+            <th class="text-center">Alamat</th>
+            <th class="text-center">Aksi</th>
           </tr>
         </thead>
       </table>

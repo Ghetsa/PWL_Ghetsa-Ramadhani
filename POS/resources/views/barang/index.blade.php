@@ -44,13 +44,13 @@
     <table class="table table-bordered table-sm table-striped table-hover" id="table-barang">
       <thead>
       <tr>
-        <th>ID</th>
-        <th>Kode Barang</th>
-        <th>Nama Barang</th>
-        <th>Kategori</th>
-        <th>Harga Beli</th>
-        <th>Harga Jual</th>
-        <th>Aksi</th>
+        <th class="text-center">ID</th>
+        <th class="text-center">Kode Barang</th>
+        <th class="text-center">Nama Barang</th>
+        <th class="text-center">Kategori</th>
+        <th class="text-center">Harga Beli</th>
+        <th class="text-center">Harga Jual</th>
+        <th class="text-center">Aksi</th>
       </tr>
       </thead>
       <tbody></tbody>

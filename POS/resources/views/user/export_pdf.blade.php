@@ -74,10 +74,10 @@
         <thead>
             <tr>
                 <th class="text-center">No</th>
-                <th>ID User</th>
-                <th>Username</th>
-                <th>Nama</th>
-                <th>Level Pengguna</th>
+                <th class="text-center">ID User</th>
+                <th class="text-center">Username</th>
+                <th class="text-center">Nama</th>
+                <th class="text-center">Level Pengguna</th>
             </tr>
         </thead>
         <tbody>

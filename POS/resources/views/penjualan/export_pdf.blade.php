@@ -84,14 +84,14 @@
         <thead>
             <tr>
                 <th class="text-center">No</th>
-                <th>Tanggal</th>
-                <th>Kode</th>
-                <th>Pembeli</th>
-                <th>Kasir</th>
-                <th>Barang</th>
-                <th class="text-right">Harga</th>
-                <th class="text-right">Jumlah</th>
-                <th class="text-right">Subtotal</th>
+                <th class="text-center">Tanggal</th>
+                <th class="text-center">Kode</th>
+                <th class="text-center">Pembeli</th>
+                <th class="text-center">Kasir</th>
+                <th class="text-center">Barang</th>
+                <th class="text-center">Harga</th>
+                <th class="text-center">Jumlah</th>
+                <th class="text-center">Subtotal</th>
             </tr>
         </thead>
         <tbody>

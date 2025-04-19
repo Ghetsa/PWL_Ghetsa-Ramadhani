@@ -44,13 +44,13 @@
     <table class="table table-bordered table-striped table-hover table-sm" id="table_stok">
       <thead>
       <tr>
-        <th>ID</th>
-        <th>Barang</th>
-        <th>Jumlah Stok</th>
-        <th>Supplier</th>
-        <th>Tanggal</th>
-        <th>Pengguna</th>
-        <th>Aksi</th>
+        <th class="text-center">ID</th>
+        <th class="text-center">Barang</th>
+        <th class="text-center">Jumlah Stok</th>
+        <th class="text-center">Supplier</th>
+        <th class="text-center">Tanggal</th>
+        <th class="text-center">Pengguna</th>
+        <th class="text-center">Aksi</th>
       </tr>
       </thead>
     </table>

@@ -74,8 +74,8 @@
         <thead>
             <tr>
                 <th class="text-center">No</th>
-                <th>Kode Kategori</th>
-                <th>Nama Kategori</th>
+                <th class="text-center">Kode Kategori</th>
+                <th class="text-center">Nama Kategori</th>
             </tr>
         </thead>
         <tbody>

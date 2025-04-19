@@ -24,10 +24,10 @@
     <table class="table table-bordered table-striped table-hover table-sm" id="table_kategori">
       <thead>
       <tr>
-        <th>ID</th>
-        <th>Kode Kategori</th>
-        <th>Nama Kategori</th>
-        <th>Aksi</th>
+        <th class="text-center">ID</th>
+        <th class="text-center">Kode Kategori</th>
+        <th class="text-center">Nama Kategori</th>
+        <th class="text-center">Aksi</th>
       </tr>
       </thead>
     </table>

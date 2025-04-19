@@ -22,10 +22,10 @@
     <table class="table table-bordered table-striped table-hover table-sm" id="table_level">
       <thead>
       <tr>
-        <th>ID</th>
-        <th>Kode Level</th>
-        <th>Nama Level</th>
-        <th>Aksi</th>
+        <th class="text-center">ID</th>
+        <th class="text-center">Kode Level</th>
+        <th class="text-center">Nama Level</th>
+        <th class="text-center">Aksi</th>
       </tr>
       </thead>
     </table>

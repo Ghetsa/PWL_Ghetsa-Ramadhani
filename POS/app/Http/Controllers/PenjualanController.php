@@ -621,7 +621,7 @@ class PenjualanController extends Controller
       }
   
       $pdf = Pdf::loadView('penjualan.cetak_struk', compact('penjualan'));
-      $pdf->setPaper([0, 0, 226.77, 600], 'portrait'); // ukuran struk (mm ke point)
+      $pdf->setPaper([0, 0, 250, 600], 'portrait'); // ukuran struk (mm ke point)
       $pdf->setOption('isRemoteEnabled', true);
       $pdf->render();
 

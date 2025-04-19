@@ -74,9 +74,9 @@
         <thead>
             <tr>
                 <th class="text-center">No</th>
-                <th>ID Level</th>
-                <th>Kode Level</th>
-                <th>Nama Level</th>
+                <th class="text-center">ID Level</th>
+                <th class="text-center">Kode Level</th>
+                <th class="text-center">Nama Level</th>
             </tr>
         </thead>
         <tbody>

@@ -96,11 +96,11 @@
         <thead>
             <tr>
                 <th class="text-center">No</th>
-                <th>Nama Barang</th>
-                <th>Supplier</th>
-                <th>Kasir</th>
-                <th>Tanggal Stok</th>
-                <th class="text-right">Jumlah Stok</th>
+                <th class="text-center">Nama Barang</th>
+                <th class="text-center">Supplier</th>
+                <th class="text-center">Kasir</th>
+                <th class="text-center">Tanggal Stok</th>
+                <th class="text-center">Jumlah Stok</th>
             </tr>
         </thead>
         <tbody>

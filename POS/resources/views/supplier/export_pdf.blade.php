@@ -75,9 +75,9 @@
         <thead>
             <tr>
                 <th class="text-center">No</th>
-                <th>Kode Supplier</th>
-                <th>Nama Supplier</th>
-                <th>Alamat</th>
+                <th class="text-center">Kode Supplier</th>
+                <th class="text-center">Nama Supplier</th>
+                <th class="text-center">Alamat</th>
             </tr>
         </thead>
         <tbody>

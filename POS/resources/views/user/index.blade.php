@@ -43,11 +43,11 @@
             <table class="table table-bordered table-striped table-hover table-sm" id="table_user">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Nama</th>
-                        <th>Level Pengguna</th>
-                        <th>Aksi</th>
+                        <th class="text-center">ID</th>
+                        <th class="text-center">Username</th>
+                        <th class="text-center">Nama</th>
+                        <th class="text-center">Level Pengguna</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
             </table>
