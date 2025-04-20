@@ -49,8 +49,10 @@ class AuthController extends Controller
 
     public function register()
     {
-        return view('auth.register');
+        $levels = LevelModel::all();
+        return view('auth.register', compact('levels'));
     }
+    
     
     public function postregister(Request $request)
     {
@@ -59,7 +61,9 @@ class AuthController extends Controller
                 'username' => 'required|string|min:4|max:20|unique:m_user,username',
                 'nama'     => 'required|string|max:50',
                 'password' => 'required|string|min:5|max:20',
+                'level_id' => 'required|exists:m_level,level_id',
             ]);
+            
     
             if ($validator->fails()) {
                 return response()->json([
@@ -71,10 +75,10 @@ class AuthController extends Controller
     
             UserModel::create([
                 'username' => $request->username,
-                'nama' => $request->nama,
+                'nama'     => $request->nama,
                 'password' => $request->password,
-                'level_id' => 2 // default level_id untuk user biasa
-            ]);
+                'level_id' => $request->level_id
+            ]);            
     
             return response()->json([
                 'status' => true,
